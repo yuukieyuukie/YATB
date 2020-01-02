@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using Effekseer;
 
 namespace StateMachineSample{
     public enum EnemyState{
@@ -13,6 +14,7 @@ namespace StateMachineSample{
         public Transform turret;
         public Transform muzzle;
         public GameObject bulletPrefab;
+        public GameObject explosion;
 
         private Transform player;
 
@@ -180,9 +182,10 @@ namespace StateMachineSample{
                 // // ランダムに吹き飛ぶ回転力を加える
                 Vector3 torque = new Vector3(Random.Range(-10000f, 10000f), Random.Range(-10000f, 10000f), Random.Range(-10000f, 10000f));
                 owner.GetComponent<Rigidbody>().AddTorque(torque);
-
+                owner.explosion.GetComponent<EffekseerEmitter>().Play();
                 // 1秒後に自身を消去する
                 Destroy(owner.gameObject, 1.0f);
+                
             }
 
             public override void Execute() {}

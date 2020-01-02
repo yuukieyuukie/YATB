@@ -19,7 +19,6 @@ public class NoveleController : MonoBehaviour{
     }
 
     void LateUpdate(){
-        transform.Rotate(new Vector3(0, 30* Time.deltaTime, 0) );
         moveNovele();
     }
 
@@ -37,7 +36,8 @@ public class NoveleController : MonoBehaviour{
             targetPos,
             noveleSpeed * Time.deltaTime
         );
-        //this.transform.LookAt (player.transform.position);
+        this.transform.LookAt(muzzle.transform.position);
+        headLight.transform.LookAt(muzzle.transform.position);
         prevPlayerPos = player.transform.position;
     }
 }

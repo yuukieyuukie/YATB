@@ -27,7 +27,7 @@ public class PlayerController : MonoBehaviour{
     private bool shot1Way;
     private int shot1WayTime;
 
-    public GameObject Impulse;
+    public GameObject impulse;
 
     //敵の接近数による見た目変化
     [SerializeField]
@@ -83,7 +83,7 @@ public class PlayerController : MonoBehaviour{
             rb.AddForce (moveForward * dribbleBoost, ForceMode.Impulse);
             //rb.velocity = moveForward * dribbleBoost;
             dribble--;
-            Impulse.GetComponent<EffekseerEmitter>().Play();
+            impulse.GetComponent<EffekseerEmitter>().Play();
         }
 
         //周囲の敵の数に応じて黄、赤色に発光（白部分が光る）

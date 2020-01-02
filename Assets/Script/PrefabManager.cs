@@ -86,7 +86,6 @@ public class PrefabManager : MonoBehaviour
 		cursor_obj = createPrefab(cursorPrefabPath, new Vector3(0,0,0), this.gameObject.transform.rotation);
 		cursor_obj.transform.localScale = cursorScale;
 		cursor_obj.name = "Cursor";
-	
 	}
 
 	void Update(){
