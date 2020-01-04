@@ -16,6 +16,9 @@ public class PlayerController : MonoBehaviour{
     public GameObject muzzleFlashPrefab;
     [SerializeField]
     public Vector3 muzzleFlashScale;
+    public GameObject impulse;
+    public AudioClip sound1;
+    AudioSource audioSource;
 
     private int state; //状態（生存、死亡、ゴール 後々enum？）
     private bool untouchable;
@@ -24,10 +27,8 @@ public class PlayerController : MonoBehaviour{
     private int maxDribble = 5;
     private float dribbleBoost = 10.0f;
     private int dribbleTime;
-    private bool shot1Way;
-    private int shot1WayTime;
-
-    public GameObject impulse;
+    private bool shot1Way, shotAllWay;
+    private int shot1WayTime, shotAllWayTime;
 
     //敵の接近数による見た目変化
     [SerializeField]
@@ -52,6 +53,7 @@ public class PlayerController : MonoBehaviour{
         countDownTimer = GameObject.Find("MessageUI/HUD/Timer");
         messageUI = GameObject.Find("MessageUI");
         muzzleFlash.SetActive(true);
+        audioSource = GetComponent<AudioSource>();
     }
 
     void Update(){
@@ -68,8 +70,9 @@ public class PlayerController : MonoBehaviour{
         rb.AddForce(1.5f*moveForward.normalized * (speed/Mathf.Sqrt(2.0f)) + new Vector3(0, rb.velocity.y, 0));// 移動方向にスピードを掛ける。ジャンプや落下がある場合は、別途Y軸方向の速度ベクトルを足す。
         
         //ボタン押下でショット発射
-        if (Input.GetButtonDown("Shot_4way")) {
+        if (!shotAllWay&&Input.GetButtonDown("Shot_4way")) {
             CreateShotObject(0f);
+            shotAllWay = true;
         }
         if (!shot1Way&&Input.GetButtonDown("Shot_1way")) {
             shot1Way = true;
@@ -115,9 +118,10 @@ public class PlayerController : MonoBehaviour{
 
         //発射ボタン押下、一定感覚で弾を連射
         if(shot1Way){
-            if(shot1WayTime==0) CreateShotObject2(muzzle.transform.forward);
-            if(shot1WayTime==15) CreateShotObject2(muzzle.transform.forward);
-            if(shot1WayTime==30) CreateShotObject2(muzzle.transform.forward);
+            if(shot1WayTime%15==0 && shot1WayTime<=30){
+                CreateShotObject2(muzzle.transform.forward);
+                audioSource.PlayOneShot(sound1);
+            }
             shot1WayTime++;
 
             if(shot1WayTime>70){
@@ -126,8 +130,19 @@ public class PlayerController : MonoBehaviour{
             }
         }
 
-
+        //一定時間経過で消去
+        if(shotAllWay){
+            if(shotAllWayTime>30){
+                Destroy(GameObject.Find("Shot_allway(Clone)"));
+            }
+            if(shotAllWayTime>360){
+                shotAllWayTime = 0;
+                shotAllWay = false;
+            }
+            shotAllWayTime++;
+        }
     }
+
 
     //allwayショットの生成処理
     private void CreateShotObject(float axis){

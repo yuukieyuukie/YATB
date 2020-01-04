@@ -54,7 +54,7 @@ public class CameraController1 : MonoBehaviour{
         mainCamera.transform.position = Vector3.Lerp (
             mainCamera.transform.position,
             targetPos,
-            cameraSpeed * Time.deltaTime
+            cameraSpeed * Time.deltaTime * 0.7f
         );
         mainCamera.transform.LookAt (this.gameObject.transform.position);
         prevPlayerPos = this.gameObject.transform.position;
@@ -66,19 +66,19 @@ public class CameraController1 : MonoBehaviour{
         offset = (otherCamera.transform.position - this.gameObject.transform.position).sqrMagnitude;
         Vector3 currentPlayerPos = this.gameObject.transform.position;
         
-        
         // Vector3 backVector = (prevPlayerPos - currentPlayerPos).normalized;
         // posVector = (backVector == Vector3.zero) ? posVector : backVector;
-        //Vector3 targetPos = currentPlayerPos + otherScale * posVector;
-        //targetPos.y = targetPos.y - 0.0f;
+        Vector3 targetPos = currentPlayerPos + otherScale * posVector;
+        targetPos.y = targetPos.y + 2.5f;
         otherCamera.transform.position = Vector3.Lerp (
             otherCamera.transform.position,
-            currentPlayerPos,
+            targetPos,
             cameraSpeed * Time.deltaTime
         );
 
-        otherCamera.transform.Rotate(0,this.gameObject.transform.rotation.y,0);
-        otherCamera.transform.LookAt (this.gameObject.transform.position);
+        Vector3 wkpos = this.gameObject.transform.position;
+        wkpos.y += 3.0f;
+        otherCamera.transform.LookAt (wkpos);
         prevPlayerPos = this.gameObject.transform.position;
     }
 }
