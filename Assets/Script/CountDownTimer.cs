@@ -16,20 +16,20 @@ public class CountDownTimer : MonoBehaviour{
 	private float oldSeconds;
 	private Text timerText;
  
-	private GameObject sceneChanger;
-	private SceneChanger sc;
+	private GameObject stgaeUIManager;
+	private StageUIManager suim;
 
 	void Start(){
 		totalTime = minute * 60 + seconds;
 		oldSeconds = 0f;
 		timerText = GetComponentInChildren<Text>();
-		sceneChanger = GameObject.Find("UIManager");
-		sc = sceneChanger.GetComponent<SceneChanger>();
+		stgaeUIManager = GameObject.Find("UIManager");
+		suim = stgaeUIManager.GetComponent<StageUIManager>();
 	}
  
 	void Update(){
 		//　制限時間が0秒以下orボール動かしモードでないなら何もしない
-		if (totalTime <= 0f || sc.getCurrentScreen() != UIScreen2.Game) {
+		if (totalTime <= 0f || suim.getCurrentScreen() != UIScreen2.Game) {
 			return;
 		}
 		//　一旦トータルの制限時間を計測；

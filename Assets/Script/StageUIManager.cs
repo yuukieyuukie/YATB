@@ -4,17 +4,18 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic; //Dictionary
 
-public class SceneChanger : MonoBehaviour{
+public class StageUIManager : MonoBehaviour{
 
     public GameObject GameClearNextBt;
-    public GameObject GameClearEndBt;
-    public GameObject GameOverNextBt;
-    public GameObject GameOverEndBt;
+    public GameObject GameClearDetailBt;
     public GameObject GameClearPanel;
     public GameObject GameClearText;
+    public GameObject GameOverRetryBt;
+    public GameObject GameOverEndBt;
     public GameObject GameOverPanel;
     public GameObject GameOverText;
     public CountDownTimer cdt;
+    public GameObject BriefingUIPrefab;
 
     //　ポーズした時に表示するUIのプレハブ
 	public GameObject pauseUIPrefab;
@@ -22,49 +23,45 @@ public class SceneChanger : MonoBehaviour{
 	private GameObject pauseUIInstance;
     private UIScreen2 currentScreen;
 
-    //ステージ名管理
-    // private object stageName = new Dictionary<string, int>()
-    // {
-    //     {"Stage1", 1},
-    //     {"Stage2", 2},
-    //     {"Stage3", 3}
-    // };
 
     void Start(){
         if(SceneManager.GetActiveScene().name=="Stage3-a" || 
             SceneManager.GetActiveScene().name=="Stage3-b" || 
             SceneManager.GetActiveScene().name=="Stage2" || 
             SceneManager.GetActiveScene().name=="Stage1"){
-                currentScreen = UIScreen2.Game;
+                currentScreen = UIScreen2.Briefing;
         }
         pauseUIPrefab.SetActive(false);
+        BriefingUIPrefab.SetActive(true);
     }
 
     void Update(){
 
         //ゲーム中（ボールが動いている間）
-        if(currentScreen == UIScreen2.Game){
+        if(currentScreen == UIScreen2.Briefing){
+            
+            Time.timeScale = 0f;
+
+        }else if(currentScreen == UIScreen2.Game){
             GameClearPanel.SetActive(false);
             GameClearText.SetActive(false);
             GameClearNextBt.SetActive(false);
-            GameClearEndBt.SetActive(false);
+            GameClearDetailBt.SetActive(false);
             GameOverPanel.SetActive(false);
             GameOverText.SetActive(false);
-            GameOverNextBt.SetActive(false);
+            GameOverRetryBt.SetActive(false);
             GameOverEndBt.SetActive(false);
         }else if(currentScreen == UIScreen2.Dialogue){
-            //今のところUI表示はなし
-        }else if(currentScreen == UIScreen2.Options){
             //今のところUI表示はなし
         }else if(currentScreen == UIScreen2.GameClear){
             GameClearPanel.SetActive(true);
             GameClearText.SetActive(true);
             GameClearNextBt.SetActive(true);
-            GameClearEndBt.SetActive(true);
+            GameClearDetailBt.SetActive(true);
         }else if(currentScreen == UIScreen2.GameOver){
             GameOverPanel.SetActive(true);
             GameOverText.SetActive(true);
-            GameOverNextBt.SetActive(true);
+            GameOverRetryBt.SetActive(true);
             GameOverEndBt.SetActive(true);
         }
 
@@ -74,7 +71,7 @@ public class SceneChanger : MonoBehaviour{
         }
 
 
-        //pauseキーで一時中断
+        //pauseキーで一時中断　これお手本に各画面遷移を実現したい
 		if (currentScreen == UIScreen2.Game && Input.GetButtonDown ("Pause")) {
 			if (pauseUIInstance == null) {
 				pauseUIInstance = GameObject.Instantiate (pauseUIPrefab) as GameObject;
@@ -86,6 +83,13 @@ public class SceneChanger : MonoBehaviour{
 				Time.timeScale = 1f;
 			}
 		}
+
+        //取り合えず準備画面でボタン押したらゲーム開始
+        if(currentScreen == UIScreen2.Briefing && Input.GetButtonDown ("Submit")){
+            BriefingUIPrefab.SetActive(false);
+            currentScreen = UIScreen2.Game;
+            Time.timeScale = 1f;
+        }
     
     }
 
@@ -117,12 +121,6 @@ public class SceneChanger : MonoBehaviour{
     public void checkGoal(){
         if(true){ //ゴールルール：ゴールエリアに到達
             //goalFlg = true;
-        }else if(true){ //ゴールルール：ゴールエリアに到達＆ボスを倒した
-            //goalFlg = true;
-        }else if(true){ //ゴールルール：ゴールエリアに到達＆アイテムを集めた
-            //goalFlg = true;
-        }else if(true){
-
         }
 
     }
@@ -140,10 +138,9 @@ public class SceneChanger : MonoBehaviour{
 }
 
 public enum UIScreen2{
-    Menu,
+    Briefing,
     Game,
     Dialogue,
-    Options,
     GameClear,
     GameOver
 

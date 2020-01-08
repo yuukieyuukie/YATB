@@ -190,8 +190,8 @@ public class PlayerController : MonoBehaviour{
     //タグ付オブジェクトに触れたときの処理
     void OnCollisionEnter(Collision col){
         if(col.gameObject.tag == "Goal"){
-            SceneChanger sc = sceneChanger.GetComponent<SceneChanger>();
-            sc.setCurrentScreen(UIScreen2.GameClear);
+            StageUIManager suim = sceneChanger.GetComponent<StageUIManager>();
+            suim.setCurrentScreen(UIScreen2.GameClear);
         }else if((col.gameObject.tag == "Enemy" || col.gameObject.tag == "Trap") && !untouchable){
             CountDownTimer cdt = countDownTimer.GetComponent<CountDownTimer>();
             cdt.addDamageToTime(40f);
