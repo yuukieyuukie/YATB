@@ -29,7 +29,7 @@ public class CountDownTimer : MonoBehaviour{
  
 	void Update(){
 		//　制限時間が0秒以下orボール動かしモードでないなら何もしない
-		if (totalTime <= 0f || suim.getCurrentScreen() != UIScreen2.Game) {
+		if (totalTime <= 0f || suim.getCurrentScreen() != StageUIScreen.Game) {
 			return;
 		}
 		//　一旦トータルの制限時間を計測；

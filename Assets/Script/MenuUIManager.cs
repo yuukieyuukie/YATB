@@ -24,7 +24,8 @@ public class MenuUIManager : MonoBehaviour {
     public GameObject SelectSceneObj;
     public GameObject OptionSceneObj;
     public GameObject SpecialSceneObj;
-    Vector3 targetPos = new Vector3(0,0,-400);
+    public GameObject CameraStartPos;
+    Vector3 targetPos;
     private float cameraMove = 0f;
     private bool cameraMoveFlg;
 
@@ -34,7 +35,6 @@ public class MenuUIManager : MonoBehaviour {
     private Vector3 cursorPos;
 
     private UIScreen currentScreen;
-    private UIScreen prevCurScreen;
     
     private int[] clearState = new int[4]{1,0,0,0}; //各ステージのクリアランクを保持
 
@@ -46,11 +46,7 @@ public class MenuUIManager : MonoBehaviour {
         childSpecial_a = SpecialScene.transform.Find("Kirehashi");
         childSpecial_b = SpecialScene.transform.Find("Cheat");
 
-        // StartMenu.SetActive(true);
-        // LoadScene.SetActive(false);
-        // SelectScene.SetActive(false);
-        // OptionsScene.SetActive(false);
-        // SpecialScene.SetActive(false);
+        targetPos = CameraStartPos.gameObject.transform.position;
     }
 
     void Update(){
@@ -72,6 +68,11 @@ public class MenuUIManager : MonoBehaviour {
             if(Input.GetButtonDown("Submit")){
                 StartButtonClicked();
                 cameraMoveFlg = true;
+            }
+
+        }else if(currentScreen == UIScreen.NewGame){
+            if(Input.GetButtonDown("Submit")){
+                NewGameButtonClicked();
             }
         }else if(currentScreen == UIScreen.LoadScene){
             
@@ -114,17 +115,23 @@ public class MenuUIManager : MonoBehaviour {
             childSpecial_b.gameObject.SetActive(true);
         }
 
+        //画面遷移する項目選択時、カメラに移動量を与える
         if(cameraMoveFlg){
-            cameraMove += 0.01f;
+            cameraMove += 0.0001f;
             if(cameraMove>=1f){
                 cameraMoveFlg = false;
                 cameraMove = 0f;
             }
         }
 
+        Vector3 fromPos;
+        Vector3 toPos;
+        fromPos = menuCam.gameObject.transform.position;
+        toPos = targetPos;
+        //項目選択時の画面遷移を実施
         menuCam.transform.position = Vector3.Lerp (
-            menuCam.gameObject.transform.position,
-            targetPos,
+            fromPos,
+            toPos,
             cameraMove
         );
 
@@ -136,52 +143,36 @@ public class MenuUIManager : MonoBehaviour {
         
         if(cursorNum==0){
             currentScreen = UIScreen.NewGame;
-            //SceneManager.LoadScene("Prologue");
             targetPos = StartSceneObj.transform.position;
         }else if(cursorNum==1){
             currentScreen = UIScreen.LoadScene;
-            // StartMenu.SetActive(false);
-            // LoadScene.SetActive(true);
-            // SelectScene.SetActive(false);
-            // OptionsScene.SetActive(false);
-            // SpecialScene.SetActive(false);
             targetPos = LoadSceneObj.transform.position;
         }else if(cursorNum==2){
             Vector3 pos = new Vector3(-200.0f, 90.0f, 0.0f);
             cursorTf.localPosition = pos;
             cursorNum = 0;
             currentScreen = UIScreen.SelectScene;
-            // StartMenu.SetActive(false);
-            // LoadScene.SetActive(false);
-            // SelectScene.SetActive(true);
-            // OptionsScene.SetActive(false);
-            // SpecialScene.SetActive(false);
             targetPos = SelectSceneObj.transform.position;
 
         }else if(cursorNum==3){
             currentScreen = UIScreen.Options;
-            // StartMenu.SetActive(false);
-            // LoadScene.SetActive(false);
-            // SelectScene.SetActive(false);
-            // OptionsScene.SetActive(true);
-            // SpecialScene.SetActive(false);
             targetPos = OptionSceneObj.transform.position;
         }else if(cursorNum==4){
             Vector3 pos = new Vector3(-120.0f, 40.0f, 0.0f);
             cursorTf.localPosition = pos;
             cursorNum = 0;
             currentScreen = UIScreen.Special;
-            // StartMenu.SetActive(false);
-            // LoadScene.SetActive(false);
-            // SelectScene.SetActive(false);
-            // OptionsScene.SetActive(false);
-            // SpecialScene.SetActive(true);
             var uiObjects = GetChildren("Kirehashi");
             foreach(var uiObject in uiObjects) uiObject.SetActive(false);
             targetPos = SpecialSceneObj.transform.position;
         }
 
 
+    }
+
+    //ニューゲームモードで決定ボタンを押した
+    private void NewGameButtonClicked(){
+        SceneManager.LoadScene("Prologue");
     }
 
     //ステージ選択モードでステージを選んだ
@@ -210,17 +201,13 @@ public class MenuUIManager : MonoBehaviour {
     }
 
     private void CancelButtonClicked(){
+
         currentScreen = UIScreen.MainMenu;
         Vector3 pos = new Vector3(-190.0f, 95.0f, 0.0f);
         cursorTf.localPosition = pos;
         cursorNum = 0;
-        // StartMenu.SetActive(true);
-        // LoadScene.SetActive(false);
-        // SelectScene.SetActive(false);
-        // OptionsScene.SetActive(false);
-        // SpecialScene.SetActive(false);
 
-        targetPos = new Vector3(0,0,-400);
+        targetPos = CameraStartPos.transform.position;
     }
 
     //オブジェクトの子要素をすべて取得する

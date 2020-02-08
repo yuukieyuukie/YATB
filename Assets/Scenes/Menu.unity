@@ -1916,6 +1916,7 @@ MonoBehaviour:
   SelectSceneObj: {fileID: 268492393}
   OptionSceneObj: {fileID: 402632365}
   SpecialSceneObj: {fileID: 197462701}
+  CameraStartPos: {fileID: 421010660}
   cursor: {fileID: 2126994902}
 --- !u!114 &1154637743
 MonoBehaviour:

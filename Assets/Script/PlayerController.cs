@@ -191,7 +191,7 @@ public class PlayerController : MonoBehaviour{
     void OnCollisionEnter(Collision col){
         if(col.gameObject.tag == "Goal"){
             StageUIManager suim = sceneChanger.GetComponent<StageUIManager>();
-            suim.setCurrentScreen(UIScreen2.GameClear);
+            suim.setCurrentScreen(StageUIScreen.GameClear);
         }else if((col.gameObject.tag == "Enemy" || col.gameObject.tag == "Trap") && !untouchable){
             CountDownTimer cdt = countDownTimer.GetComponent<CountDownTimer>();
             cdt.addDamageToTime(40f);
@@ -214,11 +214,3 @@ public enum MoveMode{
     Idle = 1,
     Follow = 2
 }
-// public enum GoalType{
-//     Tutorial,
-//     Stage1,
-//     Stage2,
-//     Stage3,
-//     BadEnd,
-//     GoodEnd
-// }
