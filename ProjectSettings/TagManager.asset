@@ -13,6 +13,7 @@ TagManager:
   - Trap
   - Dialogue
   - PickUp
+  - Floor
   layers:
   - Default
   - TransparentFX

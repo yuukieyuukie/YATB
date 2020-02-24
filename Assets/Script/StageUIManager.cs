@@ -41,7 +41,6 @@ public class StageUIManager : MonoBehaviour{
 
     void Update(){
 
-        //ゲーム中（ボールが動いている間）
         if(currentScreen == StageUIScreen.Briefing){
             //取り合えず準備画面でボタン押したらゲーム開始
             if(Input.GetButtonDown ("Submit")){
@@ -51,7 +50,6 @@ public class StageUIManager : MonoBehaviour{
             }
 
         }else if(currentScreen == StageUIScreen.Game){
-            //pauseキーで一時中断　これお手本に各画面遷移を実現したい
             if (Input.GetButtonDown ("Pause")) {
                 if (pauseUIInstance == null) {
                     pauseUIInstance = GameObject.Instantiate (pauseUIPrefab) as GameObject;

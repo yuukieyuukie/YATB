@@ -8,6 +8,7 @@ using Effekseer;
 public class PlayerController : MonoBehaviour{
     public float speed; // 動く速さ
     public float jumpPower;
+    private bool jumpFlg;
     private Rigidbody rb; // Rididbody
     public GameObject shotObject;
     public GameObject shotObject2;
@@ -15,17 +16,20 @@ public class PlayerController : MonoBehaviour{
     public GameObject muzzleFlash;
     public GameObject muzzleFlashPrefab;
     [SerializeField]
-    public Vector3 muzzleFlashScale;
-    public GameObject impulse;
-    public AudioClip sound1;
-    AudioSource audioSource;
+    private Vector3 muzzleFlashScale;
+    [SerializeField]
+    private GameObject impulse;
+    [SerializeField]
+    private AudioClip sound1;
+    private AudioSource audioSource;
 
     private int state; //状態（生存、死亡、ゴール 後々enum？）
     private bool untouchable;
     private int untouchableTime;
     private int dribble;
     private int maxDribble = 5;
-    private float dribbleBoost = 10.0f;
+    [SerializeField]
+    private float dribbleBoost;
     private int dribbleTime;
     private bool shot1Way, shotAllWay;
     private int shot1WayTime, shotAllWayTime;
@@ -63,7 +67,6 @@ public class PlayerController : MonoBehaviour{
         }
         var moveHorizontal = Input.GetAxis("Horizontal");
         var moveVertical = Input.GetAxis("Vertical");
-        var movement = new Vector3(moveHorizontal, 0, moveVertical);// カーソルキーの入力に合わせて移動方向を設定
         Vector3 cameraForward = Vector3.Scale(Camera.main.transform.forward, new Vector3(1, 0, 1)).normalized;// カメラの方向から、X-Z平面の単位ベクトルを取得
         Vector3 moveForward = cameraForward * moveVertical + Camera.main.transform.right * moveHorizontal;// 方向キーの入力値とカメラの向きから、移動方向を決定
 
@@ -77,17 +80,32 @@ public class PlayerController : MonoBehaviour{
         if (!shot1Way&&Input.GetButtonDown("Shot_1way")) {
             shot1Way = true;
         }
-
         //ボタン押下で移動系発動
-        if (Input.GetButtonDown("Jump")) {
+        if (!jumpFlg && Input.GetButtonDown("Jump")) {
             rb.velocity = Vector3.up * jumpPower;
+            //rb.velocity.y = jumpPower;
+            jumpFlg = true;
         }
         if(dribble>0 && Input.GetButtonDown("Dribble")){
-            rb.AddForce (moveForward * dribbleBoost, ForceMode.Impulse);
-            //rb.velocity = moveForward * dribbleBoost;
+            int angle = 0;
+            if(Input.GetButton("Right")){
+                angle = 90;
+                Debug.Log("Right in");
+            }else if(Input.GetButton("Left")){
+                angle = -90;
+                Debug.Log("Left in");
+            }else if(Input.GetButton("Up") || Input.GetButton("Down")){
+                angle = 0;
+                Debug.Log("Other in");
+            }
+
+            //rb.AddForce (moveForward * dribbleBoost, ForceMode.Impulse);
+            rb.velocity = Quaternion.Euler( 0, angle, 0 ) * cameraForward * dribbleBoost;
             dribble--;
             impulse.GetComponent<EffekseerEmitter>().Play();
+
         }
+
 
         //周囲の敵の数に応じて黄、赤色に発光（白部分が光る）
         if(m_targets.Count >= 3){
@@ -97,6 +115,7 @@ public class PlayerController : MonoBehaviour{
         }else{
             m_renderer.material = m_defaultMaterial;
         }
+
 
         //敵機に接触で一定時間無敵状態
         if(untouchable){
@@ -142,7 +161,6 @@ public class PlayerController : MonoBehaviour{
             shotAllWayTime++;
         }
     }
-
 
     //allwayショットの生成処理
     private void CreateShotObject(float axis){
@@ -198,6 +216,8 @@ public class PlayerController : MonoBehaviour{
             MessageUIManager muim = messageUI.GetComponent<MessageUIManager>();
             muim.checkPlayerColType(PlayerColType.EnemyCol);
             untouchable=true;
+        }else if(col.gameObject.tag == "Floor"){
+            jumpFlg = false;
         }
         
     }
@@ -206,6 +226,9 @@ public class PlayerController : MonoBehaviour{
         return state;
     }
 
+    public bool getJumpFlg(){
+        return jumpFlg;
+    }
 
 }
 
