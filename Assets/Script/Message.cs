@@ -57,15 +57,9 @@ public class Message : MonoBehaviour {
 	//＠がいくつ出たか
 	private int atNum;
 
-	// マウスクリックを促すアイコン
-	private Image clickIcon;
-	// 場面転換キャンバスを設定
-	private Image transitionImage;
 
 	void Start(){
 
-		clickIcon = transform.Find("DialoguePanel/Image").GetComponent<Image>();
-		clickIcon.enabled = false;
 		messageText = GetComponentInChildren<Text>();
 		messageText.text = "";
 
@@ -110,7 +104,7 @@ public class Message : MonoBehaviour {
 			case "ScenarioScene2":
 				transitionImage = transform.Find("TransitionCanvas/Image").GetComponent<Image>();
 				transitionImage.GetComponent<TransitionController>().enabled = false; //トランジション演出を無効化
-				SetMessage("街の生き残りA「おいいいいいいいいいい↑いいいいい↓いいいいいいっす！！どうも～シャムでぇえす！」\n＠"
+				SetMessage("街の生き残りA「！」\n＠"
 					+ "ノベレ「ん、あっちで何か逃げてますよ。追いかけて話を聞いてみましょうか。」\n＠"
 					+ "ノベレ「どうかなさったんですか。」\n＠"
 					+ "街の生き残りB「この建物の中は危ないボールだらけだ、気をつけろ」\n＠"
@@ -121,10 +115,10 @@ public class Message : MonoBehaviour {
 				SetMessage2("ここは何に使われた場所でしょうかね。", 0);
 				SetMessage2("コンテナだらけでサビ臭いと言いますか。", 0);
 				SetMessage2("敵機も多そうです。慎重に進んでくださいね。", 0);
-				SetMessage2("おっ、あんなところにエスカレーターがあるゾ～。", 1);
-				SetMessage2("先に進めそうだから見とけよ見とけよ～。", 1);
-				SetMessage2("何かゴールが近づいてるようなそんな気がするゾ。", 2);
-				SetMessage2("でもまだ敵はいるみたいだから気を付けて進めよな～。", 2);
+				SetMessage2("おっ、あんなところにエスカレーターがある。", 1);
+				SetMessage2("先に進めそうだから見とけよ見とけ。", 1);
+				SetMessage2("何かゴールが近づいてるようなそんな気がする", 2);
+				SetMessage2("でもまだ敵はいるみたいだから気を付けて進めよな", 2);
 				SetMessage2("って感じ。", 2);
 
 				// SetMessage("ノベレ「こっちにもいるのですね。まるで先回りしているかのよう・・・。」\n＠"
@@ -145,7 +139,7 @@ public class Message : MonoBehaviour {
 				);
 				break;
 			case "BadEnd":
-				SetMessage("ノベレ「壊れちゃった。悲しいなあ。」\n"
+				SetMessage("ノベレ「壊れちゃった。悲しい。」\n"
 				);
 				break;
 			case "GoodEnd":
