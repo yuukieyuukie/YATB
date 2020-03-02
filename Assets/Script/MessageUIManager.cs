@@ -10,14 +10,26 @@ public class MessageUIManager : MonoBehaviour {
     private float enemyNearTime = 0f; //enemyCollisionPanel表示用
     private GameObject enemyCollisionPanel;
     private float enemyColTime = 0f; //enemyCollisionPanel表示用
+    private GameObject damagePanel;
+    private float damageTime = 0f; //damagePanel表示用
+    public float speed = 0.5f;  //透明化の速さ
+    float alfa;    //A値を操作するための変数
+    float red, green, blue;    //RGBを操作するための変数
 
     void Start(){
         pickupPanel = GameObject.Find("PickupPanel");
         enemyNearPanel = GameObject.Find("EnemyNearPanel");
         enemyCollisionPanel = GameObject.Find("EnemyCollisionPanel");
+        damagePanel = GameObject.Find("DamagePanel");
+
         pickupPanel.SetActive(false);
         enemyNearPanel.SetActive(false);
         enemyCollisionPanel.SetActive(false);
+        damagePanel.SetActive(false);
+
+        red = damagePanel.GetComponent<Image>().color.r;
+        green = damagePanel.GetComponent<Image>().color.g;
+        blue = damagePanel.GetComponent<Image>().color.b;
     }
 
     void Update(){
@@ -46,6 +58,21 @@ public class MessageUIManager : MonoBehaviour {
             enemyCollisionPanel.SetActive(false);
         }
 
+        if(0f<damageTime && damageTime<0.25f){
+            damageTime += Time.deltaTime;
+            damagePanel.SetActive(true);
+            damagePanel.GetComponent<Image>().color = new Color(red, green, blue, alfa);
+            alfa += speed;
+        }else if(0.25f<=damageTime && damageTime<0.5f){
+            damageTime += Time.deltaTime;
+            damagePanel.SetActive(true);
+            damagePanel.GetComponent<Image>().color = new Color(red, green, blue, alfa);
+            alfa -= speed;
+        }else if(damageTime>=0.5f){
+            damageTime = 0;
+            damagePanel.SetActive(false);
+        }
+        
 
 
 
@@ -60,6 +87,7 @@ public class MessageUIManager : MonoBehaviour {
             enemyNearTime += Time.deltaTime;
         }else if(colType==PlayerColType.EnemyCol){
             enemyColTime += Time.deltaTime;
+            damageTime += Time.deltaTime;
         }else{
 
         }

@@ -60,12 +60,13 @@ public class Message : MonoBehaviour {
 
 	void Start(){
 
-		messageText = GetComponentInChildren<Text>();
+		messageText = GameObject.Find("DialoguePanel/Text").GetComponent<Text>();
+		//Debug.Log(messageText);
 		messageText.text = "";
 
-		TextGauge=GameObject.Find("TextGauge").GetComponent<RectTransform>(); //GameObjectから親要素を取得
+		TextGauge=GameObject.Find("DialoguePanel/TextGauge").GetComponent<RectTransform>(); //GameObjectから親要素を取得
 		bar = TextGauge.transform.Find("bar").GetComponent <Slider>(); //transformで子要素を取得
-
+Debug.Log(transform.GetChild (0).gameObject);
 		player = GameObject.Find("Player");
 
 		switch(SceneManager.GetActiveScene().name){
@@ -87,8 +88,6 @@ public class Message : MonoBehaviour {
 
 				break;
 			case "ScenarioScene1":
-				transitionImage = transform.Find("TransitionCanvas/Image").GetComponent<Image>();
-				transitionImage.GetComponent<TransitionController>().enabled = false; //トランジション演出を無効化
 				SetMessage("街の生き残りA「ボールがこっちに向かって飛んできやがる・・・やべえよやべえよ逃げよ」\n＠"
 					+ "ノベレ「ん、あっちで何か逃げてますよ。追いかけて話を聞いてみましょうか。」\n＠"
 					+ "ノベレ「どうかなさったんですか。」\n＠"
@@ -102,8 +101,6 @@ public class Message : MonoBehaviour {
 				);
 				break;
 			case "ScenarioScene2":
-				transitionImage = transform.Find("TransitionCanvas/Image").GetComponent<Image>();
-				transitionImage.GetComponent<TransitionController>().enabled = false; //トランジション演出を無効化
 				SetMessage("街の生き残りA「！」\n＠"
 					+ "ノベレ「ん、あっちで何か逃げてますよ。追いかけて話を聞いてみましょうか。」\n＠"
 					+ "ノベレ「どうかなさったんですか。」\n＠"
@@ -111,7 +108,7 @@ public class Message : MonoBehaviour {
 					+ "ノベレ「面白そうですね。イレボン、やっちまいましょう。」\n"
 				);
 				break;
-			case "Stage3-a": //23文字で1行
+			case "Stage3-a":
 				SetMessage2("ここは何に使われた場所でしょうかね。", 0);
 				SetMessage2("コンテナだらけでサビ臭いと言いますか。", 0);
 				SetMessage2("敵機も多そうです。慎重に進んでくださいね。", 0);
@@ -121,13 +118,6 @@ public class Message : MonoBehaviour {
 				SetMessage2("でもまだ敵はいるみたいだから気を付けて進めよな", 2);
 				SetMessage2("って感じ。", 2);
 
-				// SetMessage("ノベレ「こっちにもいるのですね。まるで先回りしているかのよう・・・。」\n＠"
-				// 	+ "ノベレ「随分と数も多いようです。いよいよ\"アレ\"を試してみるときでしょうか。」\n＠"
-				// 	+ "ノベレ「イレボン、あなたにはさらに強力な自衛武装が装備されています。」\n＠"
-				// 	+ "ノベレ「本来の仕様であれば使用は不可能なのですが、緊急事態なので仕方ありません。汚れたボールどもに性能の差を思い知らせてやりましょう。」\n＠"
-				// 	+ "ノベレ「\"Xキー\"で周囲を一掃する衝撃波を繰り出せます。敵に囲まれそうになったら使って下さい。」\n＠"
-				// 	+ "ノベレ「まだ実装されていませんが。」\n"
-				// );
 				break;
 			case "Stage3-b":
 				SetMessage("ノベレ「こっちにもいるのですね。まるで先回りしているかのよう・・・。」\n＠"
@@ -185,10 +175,6 @@ public class Message : MonoBehaviour {
             //残り時間に応じgaugeを減らす
             bar.value = 1.0f - (restTimer / messageText.text.Length);
 
-			// Debug.Log("restTimer:"+restTimer);
-			// Debug.Log("nextTimerNow:"+nextTimerNow[chu_i]);
-			// Debug.Log("value:"+bar.value);
-
 			//メッセージに対応するタイマーが一定時間を超えるorメッセージ送りボタン押下で次のメッセージをセット
 			if(restTimer>nextTimerNow[chu_i] || Input.GetButtonDown("Submit")){
 				chu_i++;
@@ -206,118 +192,7 @@ public class Message : MonoBehaviour {
 
 	}
 
-	// void Update(){
-	// 	//Pause中の入力を受け付けない
-    //     if (Mathf.Approximately(Time.timeScale, 0f)) {
-	// 	    return;
-	//     }
-
-	// 	//　メッセージが終わっていない、または設定されている
-	// 	if (isEndMessage || message == null) {
-	// 		return;
-	// 	}
-	// 	Debug.Log("Rest:"+restTimer);
-	// 	//　1回に表示するメッセージを表示していない	
-	// 	if (!isOneMessage) {
- 
-	// 		//　テキスト表示時間を経過したら
-	// 		if (elapsedTime >= textSpeed) {
-	// 			//テキスト終端文字は表示しない
-	// 			if(message [nowTextNum] != '＠'){
-	// 				messageText.text += message [nowTextNum];
-	// 			}
-	// 			//　改行文字だったら行数を足す
-	// 			if (message [nowTextNum] == '\n') {
-	// 				nowLine++;
-	// 			}
-	// 			nowTextNum++;
-	// 			textLength++;
-	// 			elapsedTime = 0f;
- 
-	// 			//　メッセージを全部表示、または行数が最大数表示された
-	// 			if (nowTextNum >= message.Length || textLength >= maxTextLength || nowLine >= maxLine || message [nowTextNum] == '＠') {
-	// 				if(restTimer<nextTimer[0]) restTimer += 1.0f;
-	// 				else isOneMessage = true;
-	// 			}
-	// 		}
- 
-	// 		//　メッセージ表示中にマウスの左ボタンを押したら一括表示
-	// 		if (Input.GetButtonDown("Submit")) {
-	// 			//　ここまでに表示しているテキストを代入
-	// 			var allText = messageText.text;
- 
-	// 			//　表示するメッセージ文繰り返す
-	// 			for (var chu_i = nowTextNum; chu_i < message.Length; chu_i++) {
-	// 				allText += message [chu_i];
- 
-	// 				if (message [chu_i] == '\n') {
-	// 					nowLine++;
-	// 				}
-	// 				nowTextNum++;
-	// 				textLength++;
- 
-	// 				//　メッセージがすべて表示される、または１回表示限度を超えた時
-	// 				if (nowTextNum >= message.Length || textLength >= maxTextLength || nowLine >= maxLine || message [nowTextNum] == '＠') {
-	// 					messageText.text = allText;
-	// 					isOneMessage = true;
-	// 					break;
-	// 				}
-	// 			}
-	// 		}
-	// 		if(elapsedTime<=0 && message[nowTextNum]=='＠'){
-	// 			atNum++; //シーンが変わると値はリセットされる
-	// 		}
-	// 		elapsedTime += Time.deltaTime;
-	// 	} else {
- 
-	// 		elapsedTime += Time.deltaTime;
- 
-	// 		//　クリックアイコンを点滅する時間を超えた時、反転させる
-	// 		if(elapsedTime >= clickFlashTime) {
-	// 			clickIcon.enabled = !clickIcon.enabled;
-	// 			elapsedTime = 0f;
-	// 		}
- 
-	// 		//　マウスクリックされたら次の文字表示処理
-	// 		if(Input.GetButtonDown("Submit")) {
-	// 			//Debug.Log (messageText.text.Length);
-	// 			messageText.text = "";
-	// 			nowLine = 0;
-	// 			clickIcon.enabled = false;
-	// 			elapsedTime = 0f;
-	// 			textLength = 0;
-	// 			isOneMessage = false;
- 
-	// 			//　メッセージが全部表示されていたらゲームオブジェクト自体の削除
-	// 			if(nowTextNum >= message.Length) {
-	// 				nowTextNum = 0;
-	// 				isEndMessage = true;
-	// 				transform.GetChild (0).gameObject.SetActive (false);
-	// 			//　それ以外はテキスト処理関連を初期化して次の文字から表示させる
-	// 			}
-	// 			restTimer = 0f;
-	// 		}
-	// 	}
-
-	// 	//現在のシーンと会話パート終了を検知し、次のシーンを呼び出し
-	// 	if(SceneManager.GetActiveScene().name == "Prologue" && isEndMessage){
-    //         SceneManager.LoadScene("Stage1");
-	// 	}else if(SceneManager.GetActiveScene().name == "ScenarioScene1" && isEndMessage){
-    //         SceneManager.LoadScene("Stage2");
-	// 	}else if(SceneManager.GetActiveScene().name == "ScenarioScene2" && isEndMessage){
-    //         SceneManager.LoadScene("Stage3-a");
-	// 	}
-
-	// 	Debug.Log("会話回数："+getAtNum());
-	// 	//規定のテキストが読まれたらトランジション演出を有効にする
-	// 	if(SceneManager.GetActiveScene().name == "ScenarioScene1" && getAtNum()==3){
-	// 		transitionImage.GetComponent<TransitionController>().enabled = true; //トランジション演出を有効化
-	// 	}else if(SceneManager.GetActiveScene().name == "ScenarioScene2" && getAtNum()==5){
-	// 		transitionImage.GetComponent<TransitionController>().enabled = true; //トランジション演出を有効化
-	// 	}
-	// }
-
-	private void SetMessage(string message){
+	private void SetMessage(string message){ //3-a以外(old)
 		this.message = message;
 	}
 
