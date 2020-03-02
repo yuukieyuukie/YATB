@@ -47,17 +47,21 @@ public class PlayerController : MonoBehaviour{
 
     private GameObject sceneChanger; //他オブジェクトのコンポーネントを取り込む
     private GameObject countDownTimer;
+    private GameObject hud;
+    private GameObject panel;
     private GameObject messageUI;
     
-
     void Start(){
         // Rigidbody を取得
         rb = GetComponent<Rigidbody>();
         sceneChanger = GameObject.Find("UIManager");
         countDownTimer = GameObject.Find("MessageUI/HUD/Timer");
+        hud = GameObject.Find("MessageUI/HUD");
+        panel = GameObject.Find("MessageUI/Panel");
         messageUI = GameObject.Find("MessageUI");
         muzzleFlash.SetActive(true);
         audioSource = GetComponent<AudioSource>();
+        
     }
 
     void Update(){
@@ -160,6 +164,10 @@ public class PlayerController : MonoBehaviour{
             }
             shotAllWayTime++;
         }
+
+        if ( Input.GetKeyDown( KeyCode.Z ) ){
+            //messageUI.GetComponent<ScreenShake>().Shake( 10.25f, 10.1f );
+        }
     }
 
     //allwayショットの生成処理
@@ -212,10 +220,12 @@ public class PlayerController : MonoBehaviour{
             suim.setCurrentScreen(StageUIScreen.GameClear);
         }else if((col.gameObject.tag == "Enemy" || col.gameObject.tag == "Trap") && !untouchable){
             CountDownTimer cdt = countDownTimer.GetComponent<CountDownTimer>();
-            cdt.addDamageToTime(40f);
+            cdt.addDamageToTime(20f);
             MessageUIManager muim = messageUI.GetComponent<MessageUIManager>();
             muim.checkPlayerColType(PlayerColType.EnemyCol);
             untouchable=true;
+            hud.GetComponent<ScreenShake>().Shake( 1.25f, 10.1f );
+            panel.GetComponent<ScreenShake>().Shake( 1.25f, 10.1f );
         }else if(col.gameObject.tag == "Floor"){
             jumpFlg = false;
         }

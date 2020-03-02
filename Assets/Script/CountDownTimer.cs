@@ -54,7 +54,10 @@ public class CountDownTimer : MonoBehaviour{
 
 	//他スクリプトから呼び出し、ダメージを時間に反映
 	public void addDamageToTime(float damageValue){
-		Debug.Log("Damage");
 		seconds -= damageValue;
+	}
+
+	public void addRegainToTime(float regainValue){
+		seconds += regainValue;
 	}
 }

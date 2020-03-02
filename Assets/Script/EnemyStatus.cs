@@ -5,14 +5,17 @@ using StateMachineSample;
 
 namespace Status { //外部スクリプトがこのスクリプトを特定できるようにする
     public class EnemyStatus : MonoBehaviour{
-        private int maxLife = 3;
+        private int maxLife = 2;
         private int life;
+        private GameObject countDownTimer;
 
         private bool isLife;
         // Start is called before the first frame update
         void Start(){
             life = maxLife;
             isLife = true;
+            countDownTimer = GameObject.Find("MessageUI/HUD/Timer");
+            
         }
 
         // Update is called once per frame
@@ -37,9 +40,12 @@ namespace Status { //外部スクリプトがこのスクリプトを特定で�
 
         public void TakeDamage(int damage){
             life -= damage;
-            if(life<=0) {
+            if(life==0) {
                 isLife = false;
                 gameObject.GetComponent<MoveEnemy>().TakeDamage();
+                CountDownTimer cdt = countDownTimer.GetComponent<CountDownTimer>();
+                cdt.addRegainToTime(10f);
+                life -= damage;
             }
         }
     }
