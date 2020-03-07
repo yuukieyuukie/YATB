@@ -53,6 +53,8 @@ public class PlayerController : MonoBehaviour{
     private GameObject enemyNearPanel;
     private GameObject enemyCollisionPanel;
     private GameObject messageUI;
+
+    private List<GameObject> dribbleGauge = new List<GameObject>();
     
     void Start(){
         // Rigidbody を取得
@@ -67,6 +69,11 @@ public class PlayerController : MonoBehaviour{
         messageUI = GameObject.Find("MessageUI");
         muzzleFlash.SetActive(true);
         audioSource = GetComponent<AudioSource>();
+        for(int i=0;i<=maxDribble;i++){
+            dribbleGauge.Add(hud.transform.Find("Dribble"+(i)).gameObject);
+            if(i!=0)hud.transform.Find("Dribble"+(i)).gameObject.SetActive(false);
+        }
+        
         
     }
 
@@ -93,7 +100,6 @@ public class PlayerController : MonoBehaviour{
         //ボタン押下で移動系発動
         if (!jumpFlg && Input.GetButtonDown("Jump")) {
             rb.velocity = Vector3.up * jumpPower;
-            //rb.velocity.y = jumpPower;
             jumpFlg = true;
         }
         if(dribble>0 && Input.GetButtonDown("Dribble")){
@@ -111,8 +117,11 @@ public class PlayerController : MonoBehaviour{
 
             //rb.AddForce (moveForward * dribbleBoost, ForceMode.Impulse);
             rb.velocity = Quaternion.Euler( 0, angle, 0 ) * cameraForward * dribbleBoost;
+            changeFalseDribbleGauge(dribble);
             dribble--;
+            changeTrueDribbleGauge(dribble);
             impulse.GetComponent<EffekseerEmitter>().Play();
+
 
         }
 
@@ -140,8 +149,10 @@ public class PlayerController : MonoBehaviour{
         if(dribble<maxDribble){
             dribbleTime++;
             if(dribbleTime>180){
+                changeFalseDribbleGauge(dribble);
                 dribble++;
                 dribbleTime = 0;
+                changeTrueDribbleGauge(dribble);
             }
         }
 
@@ -171,9 +182,7 @@ public class PlayerController : MonoBehaviour{
             shotAllWayTime++;
         }
 
-        if ( Input.GetKeyDown( KeyCode.Z ) ){
-            //messageUI.GetComponent<ScreenShake>().Shake( 10.25f, 10.1f );
-        }
+
     }
 
     //allwayショットの生成処理
@@ -194,6 +203,14 @@ public class PlayerController : MonoBehaviour{
         muzzleFlash = Instantiate(muzzleFlashPrefab, transform.position, transform.rotation);
         muzzleFlash.transform.SetParent(gameObject.transform);
         muzzleFlash.transform.localScale = muzzleFlashScale;
+    }
+
+    private void changeTrueDribbleGauge(int dribble){
+        dribbleGauge[dribble].SetActive(true);
+    }
+
+    private void changeFalseDribbleGauge(int dribble){
+        dribbleGauge[dribble].SetActive(false);
     }
 
     //サーチ系メソッド
