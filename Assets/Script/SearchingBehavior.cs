@@ -24,7 +24,7 @@ public class SearchingBehavior : MonoBehaviour{
     }
 
     private void OnTriggerEnter( Collider i_other ){
-        if (i_other.gameObject.CompareTag("Enemy")){
+        if (i_other.gameObject.CompareTag("Enemy")||i_other.gameObject.CompareTag("Boss")){
             GameObject enterObject    = i_other.gameObject;
             onFound( enterObject );
             this.target = enterObject;
@@ -43,6 +43,7 @@ public class SearchingBehavior : MonoBehaviour{
     
     private void OnTriggerStay( Collider i_other ){
         float minDis = LOCK_ON_DISTANCE;
+        
         enemys = GameObject.FindGameObjectsWithTag("Enemy");
 
         foreach(GameObject enemy in enemys){

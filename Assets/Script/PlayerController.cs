@@ -6,9 +6,14 @@ using UnityEngine.SceneManagement;
 using Effekseer;
 
 public class PlayerController : MonoBehaviour{
-    public float speed; // 動く速さ
-    public float jumpPower;
+    [SerializeField]
+    private float speed; // 動く速さ
+    [SerializeField]
+    private float maxSpeed;
+    [SerializeField]
+    private float jumpPower;
     private bool jumpFlg;
+    private bool landFlg;
     private Rigidbody rb; // Rididbody
     public GameObject shotObject;
     public GameObject shotObject2;
@@ -31,6 +36,8 @@ public class PlayerController : MonoBehaviour{
     [SerializeField]
     private float dribbleBoost;
     private int dribbleTime;
+    private int angle;
+    private bool dribbleFlg = false;
     private bool shot1Way, shotAllWay;
     private int shot1WayTime, shotAllWayTime;
 
@@ -53,11 +60,16 @@ public class PlayerController : MonoBehaviour{
     private GameObject enemyNearPanel;
     private GameObject enemyCollisionPanel;
     private GameObject messageUI;
+    private GameObject changeCamera;
+    private GameObject changeSwitchState;
+    private GameObject eventCamera;
+
+    private float moveHorizontal;
+    private float moveVertical;
 
     private List<GameObject> dribbleGauge = new List<GameObject>();
     
     void Start(){
-        // Rigidbody を取得
         rb = GetComponent<Rigidbody>();
         sceneChanger = GameObject.Find("UIManager");
         countDownTimer = GameObject.Find("MessageUI/HUD/Timer");
@@ -73,70 +85,35 @@ public class PlayerController : MonoBehaviour{
             dribbleGauge.Add(hud.transform.Find("Dribble"+(i)).gameObject);
             if(i!=0)hud.transform.Find("Dribble"+(i)).gameObject.SetActive(false);
         }
+        changeCamera = GameObject.Find("ChangeCamera");
+        changeSwitchState = GameObject.Find("Switch1");
+        eventCamera = GameObject.Find("Event Camera"); //exceptionを直すため
         
         
     }
 
-    void Update(){
-        //Pause中の入力を受け付けない
-        if (Mathf.Approximately(Time.timeScale, 0f)) {
-            return;
+    //rbはFixedで処理
+    void FixedUpdate(){
+
+        Vector3 cameraForward = Vector3.zero;
+        if(!changeCamera.GetComponent<ChangeCamera>().getEventCameraFlg()){
+            cameraForward = Vector3.Scale(Camera.main.transform.forward, new Vector3(1, 0, 1)).normalized;// カメラの方向から、X-Z平面の単位ベクトルを取得
         }
-        var moveHorizontal = Input.GetAxis("Horizontal");
-        var moveVertical = Input.GetAxis("Vertical");
-        Vector3 cameraForward = Vector3.Scale(Camera.main.transform.forward, new Vector3(1, 0, 1)).normalized;// カメラの方向から、X-Z平面の単位ベクトルを取得
         Vector3 moveForward = cameraForward * moveVertical + Camera.main.transform.right * moveHorizontal;// 方向キーの入力値とカメラの向きから、移動方向を決定
+        if(rb.velocity.magnitude < maxSpeed){
+            rb.AddForce(100f*moveForward.normalized * Time.deltaTime * (speed/Mathf.Sqrt(2.0f)) + new Vector3(0, rb.velocity.y, 0));// 移動方向にスピードを掛ける。ジャンプや落下がある場合は、別途Y軸方向の速度ベクトルを足す。
+        }
 
-        rb.AddForce(1.5f*moveForward.normalized * (speed/Mathf.Sqrt(2.0f)) + new Vector3(0, rb.velocity.y, 0));// 移動方向にスピードを掛ける。ジャンプや落下がある場合は、別途Y軸方向の速度ベクトルを足す。
-        
-        //ボタン押下でショット発射
-        if (!shotAllWay&&Input.GetButtonDown("Shot_4way")) {
-            CreateShotObject(0f);
-            shotAllWay = true;
-        }
-        if (!shot1Way&&Input.GetButtonDown("Shot_1way")) {
-            shot1Way = true;
-        }
-        //ボタン押下で移動系発動
-        if (!jumpFlg && Input.GetButtonDown("Jump")) {
+        if(jumpFlg && landFlg){
             rb.velocity = Vector3.up * jumpPower;
-            jumpFlg = true;
+            landFlg = false;
         }
-        if(dribble>0 && Input.GetButtonDown("Dribble")){
-            int angle = 0;
-            if(Input.GetButton("Right")){
-                angle = 90;
-                Debug.Log("Right in");
-            }else if(Input.GetButton("Left")){
-                angle = -90;
-                Debug.Log("Left in");
-            }else if(Input.GetButton("Up") || Input.GetButton("Down")){
-                angle = 0;
-                Debug.Log("Other in");
-            }
-
-            //rb.AddForce (moveForward * dribbleBoost, ForceMode.Impulse);
+        if(dribbleFlg){
             rb.velocity = Quaternion.Euler( 0, angle, 0 ) * cameraForward * dribbleBoost;
-            changeFalseDribbleGauge(dribble);
-            dribble--;
-            changeTrueDribbleGauge(dribble);
-            impulse.GetComponent<EffekseerEmitter>().Play();
-
-
+            dribbleFlg = false;
         }
 
-
-        //周囲の敵の数に応じて黄、赤色に発光（白部分が光る）
-        if(m_targets.Count >= 3){
-            m_renderer.material = m_manyFoundMaterial;
-        }else if(m_targets.Count > 0){
-            m_renderer.material = m_foundMaterial;
-        }else{
-            m_renderer.material = m_defaultMaterial;
-        }
-
-
-        //敵機に接触で一定時間無敵状態
+                //敵機に接触で一定時間無敵状態
         if(untouchable){
             untouchableTime ++;
             if(untouchableTime>90){
@@ -147,7 +124,7 @@ public class PlayerController : MonoBehaviour{
 
         //時間経過でドリブル回数を回復
         if(dribble<maxDribble){
-            dribbleTime++;
+            dribbleTime ++;
             if(dribbleTime>180){
                 changeFalseDribbleGauge(dribble);
                 dribble++;
@@ -168,6 +145,58 @@ public class PlayerController : MonoBehaviour{
                 shot1WayTime = 0;
                 shot1Way = false;
             }
+        }
+    }
+
+    void Update(){
+        moveHorizontal = Input.GetAxis("Horizontal");
+        moveVertical = Input.GetAxis("Vertical");
+
+        //Pause中の入力を受け付けない
+        if (Mathf.Approximately(Time.timeScale, 0f)) {
+            return;
+        }
+
+        //ボタン押下でショット発射
+        if (!shotAllWay&&Input.GetButtonDown("Shot_4way")) {
+            // CreateShotObject(0f);
+            // shotAllWay = true;
+        }
+        if (!shot1Way&&Input.GetButtonDown("Shot_1way")) {
+            shot1Way = true;
+        }
+        //ボタン押下で移動系発動
+        if (!jumpFlg && Input.GetButtonDown("Jump")) {
+            jumpFlg = true;
+            landFlg = true;
+        }
+        if(dribble>0 && Input.GetButtonDown("Dribble")){
+            if(Input.GetButton("Right")){
+                angle = 90;
+            }else if(Input.GetButton("Left")){
+                angle = -90;
+            }else if(Input.GetButton("Up") || Input.GetButton("Down")){
+                angle = 0;
+            }
+            dribbleFlg = true;
+            
+            changeFalseDribbleGauge(dribble);
+            dribble--;
+            changeTrueDribbleGauge(dribble);
+            impulse.GetComponent<EffekseerEmitter>().Play();
+
+
+        }
+
+        
+
+        //周囲の敵の数に応じて黄、赤色に発光（白部分が光る）
+        if(m_targets.Count >= 3){
+            m_renderer.material = m_manyFoundMaterial;
+        }else if(m_targets.Count > 0){
+            m_renderer.material = m_foundMaterial;
+        }else{
+            m_renderer.material = m_defaultMaterial;
         }
 
         //一定時間経過で消去
@@ -238,10 +267,20 @@ public class PlayerController : MonoBehaviour{
 
     //タグ付オブジェクトに触れたときの処理
     void OnCollisionEnter(Collision col){
-        if(col.gameObject.tag == "Goal"){
+        if(col.gameObject.CompareTag("Goal")){
             StageUIManager suim = sceneChanger.GetComponent<StageUIManager>();
             suim.setCurrentScreen(StageUIScreen.GameClear);
-        }else if((col.gameObject.tag == "Enemy" || col.gameObject.tag == "Trap") && !untouchable){
+        }else if(col.gameObject.CompareTag("Previous")){
+            StageUIManager suim = sceneChanger.GetComponent<StageUIManager>();
+            suim.setCurrentScreen(StageUIScreen.Previous);
+            MessageUIManager muim = messageUI.GetComponent<MessageUIManager>();
+            muim.checkPlayerColType(PlayerColType.SceneChange);
+        }else if(col.gameObject.CompareTag("Next")){
+            StageUIManager suim = sceneChanger.GetComponent<StageUIManager>();
+            suim.setCurrentScreen(StageUIScreen.Next);
+            MessageUIManager muim = messageUI.GetComponent<MessageUIManager>();
+            muim.checkPlayerColType(PlayerColType.SceneChange);
+        }else if((col.gameObject.CompareTag("Enemy") || col.gameObject.CompareTag("Trap")) && !untouchable){
             CountDownTimer cdt = countDownTimer.GetComponent<CountDownTimer>();
             cdt.addDamageToTime(20f);
             MessageUIManager muim = messageUI.GetComponent<MessageUIManager>();
@@ -253,20 +292,17 @@ public class PlayerController : MonoBehaviour{
             if(dialoguePanel.activeSelf){
                 dialoguePanel.GetComponent<ScreenShake>().Shake( 0.25f, 12.1f );
             }
-            if(pickupPanel.activeSelf){
-                pickupPanel.GetComponent<ScreenShake>().Shake( 0.25f, 12.1f );
-            }
-            if(enemyNearPanel.activeSelf){
-                enemyNearPanel.GetComponent<ScreenShake>().Shake( 0.25f, 12.1f );
-            }
-            if(enemyCollisionPanel.activeSelf){
-                enemyCollisionPanel.GetComponent<ScreenShake>().Shake( 0.25f, 12.1f );
-            }
-        }else if(col.gameObject.tag == "Floor"){
+
+        }else if(col.gameObject.CompareTag("Floor")){
             jumpFlg = false;
+        }else if(col.gameObject.CompareTag("Switch") && !changeSwitchState.GetComponent<ChangeSwitchState>().getSwitchState()){
+            changeCamera.GetComponent<ChangeCamera>().setEventCameraFlg(true);
+            changeSwitchState.GetComponent<ChangeSwitchState>().setSwitchState(true);
         }
+        //Debug.Log("jumpFlg: "+jumpFlg);
         
     }
+
 
     public int getState(){
         return state;

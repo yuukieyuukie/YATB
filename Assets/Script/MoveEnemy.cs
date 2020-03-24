@@ -22,12 +22,16 @@ namespace StateMachineSample{
         private float rotationSmooth = 2f;
         //private float turretRotationSmooth = 0.8f;
         //private float attackInterval = 2f;
+        private float rush = 12f;
 
         private float pursuitSqrDistance = 300f;
         private float attackSqrDistance = 100f;
         private float margin = 50f;
 
         private float changeTargetSqrDistance = 1000f;
+
+        private Rigidbody rb;
+        private GameObject prefabManager;
 
         private void Start(){
             Initialize();
@@ -44,6 +48,8 @@ namespace StateMachineSample{
             stateList.Add(new StateExplode(this));
 
             stateMachine = new StateMachine<MoveEnemy>();
+            rb = GetComponent<Rigidbody>();
+            prefabManager = GameObject.Find("PrefabSpawn");
 
             ChangeState(EnemyState.Wander);
         }
@@ -63,8 +69,7 @@ namespace StateMachineSample{
             public StateWander(MoveEnemy owner) : base(owner) {}
 
             public override void Enter(){
-                // 始めの目標地点を設定する
-                targetPosition = GetRandomPositionOnLevel();
+                targetPosition = GetRandomPositionOnLevel();// 始めの目標地点を設定する
             }
 
             public override void Execute(){
@@ -72,14 +77,12 @@ namespace StateMachineSample{
                 // プレイヤーとの距離が小さければ、追跡ステートに遷移
                 float sqrDistanceToPlayer = Vector3.SqrMagnitude(owner.transform.position - owner.player.position);
                 if (sqrDistanceToPlayer <  owner.pursuitSqrDistance - owner.margin){ 
-                    //Debug.Log("wander_a");
                     owner.ChangeState(EnemyState.Pursuit);
                 }
 
                 // 目標地点との距離が小さければ、次のランダムな目標地点を設定する
                 float sqrDistanceToTarget = Vector3.SqrMagnitude(owner.transform.position - targetPosition);
                 if (sqrDistanceToTarget < owner.changeTargetSqrDistance){
-                    //Debug.Log("target_change");
                     targetPosition = GetRandomPositionOnLevel();
                 }
 
@@ -89,14 +92,16 @@ namespace StateMachineSample{
 
                 // 前方に進む
                 owner.transform.Translate(Vector3.forward * owner.speed * Time.deltaTime);
-                //Debug.Log(sqrDistanceToTarget);
             }
 
             public override void Exit() {}
 
             public Vector3 GetRandomPositionOnLevel(){
-                float levelSize = 55f;
-                return new Vector3(Random.Range(-levelSize, levelSize), 0, Random.Range(-levelSize, levelSize));
+                
+                return owner.prefabManager.GetComponent<PrefabManager>().getEnemyPosStage3(int.Parse(owner.gameObject.name.Replace("enemy","")));
+                
+                //float levelSize = 15f;
+                //return new Vector3(Random.Range(-levelSize, levelSize), 0, Random.Range(-levelSize, levelSize));
             }
         }
 
@@ -118,7 +123,6 @@ namespace StateMachineSample{
 
                 // プレイヤーとの距離が大きければ、徘徊ステートに遷移
                 if (sqrDistanceToPlayer > owner.pursuitSqrDistance + owner.margin){ 
-                    //Debug.Log("pursuit_a");
                     owner.ChangeState(EnemyState.Wander);
                 }
 
@@ -127,7 +131,7 @@ namespace StateMachineSample{
                 owner.transform.rotation = Quaternion.Slerp(owner.transform.rotation, targetRotation, Time.deltaTime * owner.rotationSmooth);
 
                 // 前方に進む
-                owner.transform.Translate(Vector3.forward * owner.speed * Time.deltaTime);
+                owner.transform.Translate(Vector3.forward * owner.rush * Time.deltaTime);
             }
 
             public override void Exit() {}
@@ -147,12 +151,17 @@ namespace StateMachineSample{
                 //プレイヤーとの距離が大きければ、追跡ステートに遷移
                 float sqrDistanceToPlayer = Vector3.SqrMagnitude(owner.transform.position - owner.player.position);
                 if (sqrDistanceToPlayer > owner.attackSqrDistance + owner.margin){ 
-                    //Debug.Log("attack_a");
                     owner.ChangeState(EnemyState.Pursuit);
                 }
                 
-                
-                //owner.transform.Translate(Vector3.forward * owner.speed * Time.deltaTime * 10.0f);
+                // プレイヤーの方向を向く
+                Quaternion targetRotation = Quaternion.LookRotation(owner.player.position - owner.transform.position);
+                owner.transform.rotation = Quaternion.Slerp(owner.transform.rotation, targetRotation, Time.deltaTime * owner.rotationSmooth);
+
+                // 前方に進む
+                //owner.transform.Translate(Vector3.forward * owner.speed * Time.deltaTime);
+                owner.rb.velocity = targetRotation * Vector3.forward*2f;
+
                 // // 砲台をプレイヤーの方向に向ける
                 // Quaternion targetRotation = Quaternion.LookRotation(owner.player.position - owner.turret.position);
                 // owner.turret.rotation = Quaternion.Slerp(owner.turret.rotation, targetRotation, Time.deltaTime * owner.turretRotationSmooth);
@@ -194,8 +203,7 @@ namespace StateMachineSample{
         }
 
         void OnCollisionEnter(Collision col){
-            if(col.gameObject.tag == "Shot"){
-                Debug.Log("あたった");
+            if(col.gameObject.tag == "Shot"){ //当たった
             }
         }
 

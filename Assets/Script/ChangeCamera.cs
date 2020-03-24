@@ -9,14 +9,37 @@ public class ChangeCamera : MonoBehaviour {
 	//　切り替える他のカメラ
 	[SerializeField]
     private GameObject otherCamera;
-	
-	// Update is called once per frame
+	//　イベント用のカメラ
+	[SerializeField]
+    private GameObject eventCamera;
+	private bool eventFlg;
+	private int eventTime;
+
+	void Start(){
+		eventTime = 0;
+	}
+
 	void Update () {
-		//　1キーを押したらカメラの切り替えをする
+		//　キーを押したらカメラの切り替えをする
 		if(Input.GetButtonDown("ChangeCamera")) {
 			mainCamera.SetActive(!mainCamera.activeSelf);
 			otherCamera.SetActive(!otherCamera.activeSelf);
-		}	
+		}
+		if(eventFlg){
+			if(mainCamera.activeSelf || otherCamera.activeSelf){
+				mainCamera.SetActive(false);
+				otherCamera.SetActive(false);
+				eventCamera.SetActive(true);
+			}
+			eventTime++;
+		}
+
+		if(eventTime>210){
+			eventCamera.SetActive(false);
+			mainCamera.SetActive(true);
+			setEventCameraFlg(false);
+			eventTime = 0;
+		}
 	}
 
     public bool isMainCamera(){
@@ -25,5 +48,13 @@ public class ChangeCamera : MonoBehaviour {
 
 	public bool isOtherCamera(){
         return otherCamera.activeSelf;
+	}
+
+	public void setEventCameraFlg(bool active){
+        eventFlg = active;
+    }
+
+	public bool getEventCameraFlg(){
+		return eventFlg;
 	}
 }

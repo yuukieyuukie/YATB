@@ -2,11 +2,10 @@
 using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using System.Collections.Generic; //Dictionary
 
 public class StageUIManager : MonoBehaviour{
 
-    private StageUIScreen currentScreen;
+    public static StageUIScreen currentScreen;
     public CountDownTimer cdt;
 
     public GameObject GameClearUIPrefab;
@@ -17,36 +16,47 @@ public class StageUIManager : MonoBehaviour{
 
     public GameObject BriefingUIPrefab;
 
-    //　ポーズした時に表示するUIのプレハブ
+    //　ポーズした時に表示するUIのプレハブ・ポーズUIのインスタンス
 	public GameObject pauseUIPrefab;
-	//　ポーズUIのインスタンス
 	private GameObject pauseUIInstance;
 
     public GameObject Cursor;
 
+    public GameObject transitionCanvas;
+
+    private GameObject moveWall;
 
     void Start(){
-        if(SceneManager.GetActiveScene().name=="Stage3-a" || 
-            SceneManager.GetActiveScene().name=="Stage3-b" || 
-            SceneManager.GetActiveScene().name=="Stage2" || 
-            SceneManager.GetActiveScene().name=="Stage1"){
-                currentScreen = StageUIScreen.Briefing;
-                Time.timeScale = 0f;
+        moveWall = GameObject.Find("Wall/Fence (1)");
+        if(SceneManager.GetActiveScene().name!="Menu" && SceneManager.GetActiveScene().name!="Prologue"){
+                if(currentScreen==StageUIScreen.Previous || currentScreen==StageUIScreen.Next){
+                    currentScreen = StageUIScreen.Game;
+                    Time.timeScale = 1f;
+                    BriefingUIPrefab.SetActive(false);
+                    moveWall.GetComponent<MoveWall>().setPreviousPos();
+                }else{
+                    currentScreen = StageUIScreen.Briefing;
+                    Time.timeScale = 0f;
+                    BriefingUIPrefab.SetActive(true);
+                    
+                }
         }
         pauseUIPrefab.SetActive(false);
-        BriefingUIPrefab.SetActive(true);
         GameClearUIPrefab.SetActive(false);
         GameOverUIPrefab.SetActive(false);
+        transitionCanvas.SetActive(false);
+        
     }
 
     void Update(){
-
         if(currentScreen == StageUIScreen.Briefing){
             //取り合えず準備画面でボタン押したらゲーム開始
             if(Input.GetButtonDown ("Submit")){
                 BriefingUIPrefab.SetActive(false);
                 currentScreen = StageUIScreen.Game;
                 Time.timeScale = 1f;
+                cdt.initTotalTime();
+                moveWall.GetComponent<MoveWall>().setPos();
             }
 
         }else if(currentScreen == StageUIScreen.Game){
@@ -68,10 +78,27 @@ public class StageUIManager : MonoBehaviour{
                 retryButtonFlag = true;
                 Cursor.SetActive(true);
             }
+            
+            
 
         }else if(currentScreen == StageUIScreen.Dialogue){
 
+        }else if(currentScreen == StageUIScreen.Previous){
+            //transition
+            transitionCanvas.SetActive(true);
+            if(transitionCanvas.transform.Find("Image").GetComponent <TransitionController>().getCorEndFlg()){
+                SceneManager.LoadScene("stage3-a");
+                
+            }
+        }else if(currentScreen == StageUIScreen.Next){
+            //transition
+            transitionCanvas.SetActive(true);
+            if(transitionCanvas.transform.Find("Image").GetComponent <TransitionController>().getCorEndFlg()){
+                SceneManager.LoadScene("stage3-a2");
+            }
+
         }else if(currentScreen == StageUIScreen.GameClear){
+            GameClearUIPrefab.SetActive(true);
 
         }else if(currentScreen == StageUIScreen.GameOver){
             if (retryButtonFlag) {
@@ -95,27 +122,6 @@ public class StageUIManager : MonoBehaviour{
 
 
 
-        // //ゲームクリア画面表示
-        // if (currentScreen == StageUIScreen.GameClear && NextButtonFlag) {
-		// 	if (GameOverUIInstance == null) {
-		// 		GameOverUIInstance = GameObject.Instantiate (GameOverUIPrefab) as GameObject;
-        //         GameOverUIPrefab.SetActive(true);
-		// 		Time.timeScale = 0f;
-		// 	} else {
-		// 		Destroy (GameOverUIInstance);
-        //         GameOverUIPrefab.SetActive(false);
-		// 		SceneManager.LoadScene(SceneManager.GetActiveScene().name); //ステージ再読み込み
-		// 	}
-        //     NextButtonFlag = false;
-		// }
-        // //決定ボタン押下で画面削除
-        // if (currentScreen == StageUIScreen.GameClear && !NextButtonFlag && Input.GetButtonDown ("Submit")){
-        //     NextButtonFlag = true;
-        // }
-
-
-
-    
     }
 
     private void NextButtonClicked(){
@@ -130,9 +136,6 @@ public class StageUIManager : MonoBehaviour{
         }
     }
 
-    private void DetailButtonClicked(){
-        
-    }
 
     private void RetryButtonClicked(){
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
@@ -144,9 +147,9 @@ public class StageUIManager : MonoBehaviour{
 
     //クリア条件に応じてゴールエリアに触れた時の挙動を変化
     private void checkGoal(){
-        if(true){ //ゴールルール：ゴールエリアに到達
-            //goalFlg = true;
-        }
+        // if(true){ //ゴールルール：ゴールエリアに到達
+        //     goalFlg = true;
+        // }
 
     }
 
@@ -160,12 +163,15 @@ public class StageUIManager : MonoBehaviour{
         return currentScreen;
     }
 
+
 }
 
 public enum StageUIScreen{
     Briefing,
     Game,
     Dialogue,
+    Previous,
+    Next,
     GameClear,
     GameOver
 

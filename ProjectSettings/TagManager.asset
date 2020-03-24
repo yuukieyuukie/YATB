@@ -14,6 +14,10 @@ TagManager:
   - Dialogue
   - PickUp
   - Floor
+  - Switch
+  - Boss
+  - Previous
+  - Next
   layers:
   - Default
   - TransparentFX
@@ -32,8 +36,8 @@ TagManager:
   - Enemy
   - Dialogue
   - Shot
-  - 
-  - 
+  - Camera
+  - AreaMove
   - 
   - 
   - 

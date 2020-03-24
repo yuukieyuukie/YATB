@@ -66,7 +66,6 @@ public class Message : MonoBehaviour {
 
 		TextGauge=GameObject.Find("DialoguePanel/TextGauge").GetComponent<RectTransform>(); //GameObjectから親要素を取得
 		bar = TextGauge.transform.Find("bar").GetComponent <Slider>(); //transformで子要素を取得
-Debug.Log(transform.GetChild (0).gameObject);
 		player = GameObject.Find("Player");
 
 		switch(SceneManager.GetActiveScene().name){
@@ -114,9 +113,11 @@ Debug.Log(transform.GetChild (0).gameObject);
 				SetMessage2("敵機も多そうです。慎重に進んでくださいね。", 0);
 				SetMessage2("おっ、あんなところにエスカレーターがある。", 1);
 				SetMessage2("先に進めそうだから見とけよ見とけ。", 1);
-				SetMessage2("何かゴールが近づいてるようなそんな気がする", 2);
-				SetMessage2("でもまだ敵はいるみたいだから気を付けて進めよな", 2);
-				SetMessage2("って感じ。", 2);
+				SetMessage2("何だかゴールが近づいてるようなそんな気がします", 2);
+				SetMessage2("でも目の前のフェンスが邪魔して先に進めませんね・・・", 2);
+				SetMessage2("どこかに動かす仕組みがあるのではないでしょうか？", 2);
+				SetMessage2("奥の方に怪しげなスイッチがありますよ！", 3);
+				SetMessage2("アレを押せたら下のフェンスが開くんじゃないでしょうか？", 3);
 
 				break;
 			case "Stage3-b":

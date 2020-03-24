@@ -16,6 +16,8 @@ public class TransitionController : MonoBehaviour
     [SerializeField]
     private UnityEvent OnComplete;
 
+    private bool corEndFlg = false;
+
     void Start(){
 
         StartCoroutine( BeginTransition() );
@@ -34,6 +36,7 @@ public class TransitionController : MonoBehaviour
         if ( OnComplete != null ) { OnComplete.Invoke(); }
 
         _transitionIn.SetFloat( "_Alpha", 0 );
+        corEndFlg = true;
     }
 
     /// <summary>
@@ -51,5 +54,9 @@ public class TransitionController : MonoBehaviour
             current += Time.deltaTime;
         }
         material.SetFloat( "_Alpha", 1 );
+    }
+
+    public bool getCorEndFlg(){
+        return corEndFlg;
     }
 }

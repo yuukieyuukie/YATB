@@ -3,50 +3,43 @@ using System.Collections.Generic;
 using UnityEngine;
 using StateMachineSample;
 
-namespace Status { //外部スクリプトがこのスクリプトを特定できるようにする
-    public class EnemyStatus : MonoBehaviour{
-        private int maxLife = 2;
-        private int life;
-        private GameObject countDownTimer;
+public class EnemyStatus : MonoBehaviour, ParentStatus{
+    private int maxLife = 2;
+    private int life;
+    private GameObject countDownTimer;
 
-        private bool isLife;
-        // Start is called before the first frame update
-        void Start(){
-            life = maxLife;
-            isLife = true;
-            countDownTimer = GameObject.Find("MessageUI/HUD/Timer");
-            
-        }
+    private bool isLife;
 
-        // Update is called once per frame
-        void Update(){
+    void Start(){
+        life = maxLife;
+        isLife = true;
+        countDownTimer = GameObject.Find("MessageUI/HUD/Timer");
+    }
 
-        }
-        public void SetHp(int life) {
+    void Update(){
 
-        }
+    }
 
-        public int GetHp() {
-            return life;
-        }
+    public int GetHp() {
+        return life;
+    }
 
-        public int GetMaxHp() {
-            return maxLife;
-        }
+    public int GetMaxHp() {
+        return maxLife;
+    }
 
-        public bool isLifeZero(){
-            return isLife;
-        }
+    public bool isLifeZero(){
+        return isLife;
+    }
 
-        public void TakeDamage(int damage){
+    public void TakeDamage(int damage){
+        life -= damage;
+        if(life==0) {
+            isLife = false;
+            gameObject.GetComponent<MoveEnemy>().TakeDamage();
+            CountDownTimer cdt = countDownTimer.GetComponent<CountDownTimer>();
+            cdt.addRegainToTime(10f);
             life -= damage;
-            if(life==0) {
-                isLife = false;
-                gameObject.GetComponent<MoveEnemy>().TakeDamage();
-                CountDownTimer cdt = countDownTimer.GetComponent<CountDownTimer>();
-                cdt.addRegainToTime(10f);
-                life -= damage;
-            }
         }
     }
 }

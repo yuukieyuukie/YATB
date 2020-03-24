@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using Status;
 
 public class ShotObject : MonoBehaviour
 {
@@ -66,7 +65,11 @@ public class ShotObject : MonoBehaviour
             //col.gameObject.GetComponent<MetalImpacts>().CallImpactEffect(gameObject.transform);
             Destroy(this.gameObject,0.5f);
             CallImpactEffect(gameObject.transform);
-		}
+		}else if(col.gameObject.tag == "Boss") {
+            col.gameObject.GetComponent<BossStatus>().TakeDamage(damage);
+			Destroy(this.gameObject);
+            CallImpactEffect(gameObject.transform);
+        }
 	}
 
     public void CallImpactEffect(Transform hitPos){

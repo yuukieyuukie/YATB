@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
-using Status;
 
 public class HPStatusUI2 : MonoBehaviour {
 
@@ -11,8 +10,8 @@ public class HPStatusUI2 : MonoBehaviour {
     private RectTransform hpUI;
     private Slider hpSlider;
 
-    // ターゲットオブジェクトの座標からオフセットする値
-    public float offset;
+	private GameObject eventCamera;
+
  
 	void Start() {
         hpUI=GameObject.Find("HP"+(this.gameObject.name.Replace("enemy",""))).GetComponent<RectTransform>(); //GameObjectから親要素を取得
@@ -21,11 +20,18 @@ public class HPStatusUI2 : MonoBehaviour {
         EnemyStatus = GetComponent<EnemyStatus>();
 		//　スライダーの値0～1の間になるように比率を計算
 		hpSlider.value = (float) EnemyStatus.GetMaxHp () / (float) EnemyStatus.GetMaxHp ();
+
+		eventCamera = GameObject.Find("Event Camera");
+		
+
 	}
 	
-	// Update is called once per frame
 	void Update () {
-		hpUI.transform.rotation = Camera.main.transform.rotation;
+		if(!eventCamera.activeSelf){
+			hpUI.transform.rotation = Camera.main.transform.rotation;
+		}else{
+			hpUI.transform.rotation = eventCamera.transform.rotation;
+		}
 		UpdateHPValue();
         checkDisable();
 	}

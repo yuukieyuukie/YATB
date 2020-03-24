@@ -5,29 +5,30 @@ using UnityEngine.UI;
 public class CountDownTimer : MonoBehaviour{
  
 	//　トータル制限時間
-	private float totalTime;
-	//　制限時間（分）
-	[SerializeField]
-	private int minute;
-	//　制限時間（秒）
-	[SerializeField]
-	private float seconds;
+	public static float totalTime;
+	//　制限時間（分,秒）
+	public static int minute = 1;
+	public static float seconds = 10;
 	//　前回Update時の秒数
 	private float oldSeconds;
 	private Text timerText;
  
-	private GameObject stgaeUIManager;
+	private GameObject stageUIManager;
 	private StageUIManager suim;
 
 	void Start(){
-		totalTime = minute * 60 + seconds;
 		oldSeconds = 0f;
 		timerText = GetComponentInChildren<Text>();
-		stgaeUIManager = GameObject.Find("UIManager");
-		suim = stgaeUIManager.GetComponent<StageUIManager>();
+		stageUIManager = GameObject.Find("UIManager");
+		suim = stageUIManager.GetComponent<StageUIManager>();
+		if(suim.getCurrentScreen() == StageUIScreen.Briefing){
+			minute = 1;
+			seconds = 10;
+		}
 	}
  
 	void Update(){
+
 		//　制限時間が0秒以下orボール動かしモードでないなら何もしない
 		if (totalTime <= 0f || suim.getCurrentScreen() != StageUIScreen.Game) {
 			return;
@@ -47,9 +48,14 @@ public class CountDownTimer : MonoBehaviour{
 		oldSeconds = seconds;
 	}
 
-	//画面変更の条件として残り時間を取得
+	//タイマー初期化。Breifingでのみ呼出し
+	public void initTotalTime(){
+		totalTime = minute * 60 + seconds;
+	}
+
+	//GameOver判定
 	public float getTotalTime(){
-		return this.totalTime;
+		return totalTime;
 	}
 
 	//他スクリプトから呼び出し、ダメージを時間に反映

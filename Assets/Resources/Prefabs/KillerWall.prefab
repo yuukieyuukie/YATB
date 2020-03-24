@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2626608513580679087}
   m_Layer: 0
   m_Name: KillerWall
-  m_TagString: Metal
+  m_TagString: Trap
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -58,7 +58,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a4d4a317d438e07478c19082ae88a28f, type: 2}
+  - {fileID: 2100000, guid: 3694a711f19d1f54a906cc4717a68577, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

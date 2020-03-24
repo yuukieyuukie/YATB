@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: -3844014685454265223}
   - component: {fileID: -8997338441883979013}
   - component: {fileID: 7237543610569878429}
-  m_Layer: 10
+  m_Layer: 14
   m_Name: Enemy Ball
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -153,7 +153,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8963568ba6c45e4f90d29c22f61d6dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  offset: 0
 --- !u!1 &4666502278040745495
 GameObject:
   m_ObjectHideFlags: 0

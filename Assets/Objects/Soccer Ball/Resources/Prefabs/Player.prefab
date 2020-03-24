@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 7826746488553044399}
   - component: {fileID: 1853176183349482691}
   - component: {fileID: 4661794015409316364}
+  - component: {fileID: 9017604819922879842}
   m_Layer: 12
   m_Name: Player
   m_TagString: Player
@@ -129,7 +130,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65121ce0fbe7f184c9ff3cef83811c6c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localGravity: {x: 0, y: -5, z: 0}
+  localGravity: {x: 0, y: -10, z: 0}
 --- !u!114 &1853176183349482691
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -143,7 +144,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 10
-  jumpPower: 7
+  maxSpeed: 15
+  jumpPower: 10
   shotObject: {fileID: 1551744355202933957, guid: be7ac78c2cf6de24b826b94fb06cba17,
     type: 3}
   shotObject2: {fileID: 5601847896115743032, guid: 30e4b20c37a36a24aa9f92c6aa57628e,
@@ -152,9 +154,9 @@ MonoBehaviour:
   muzzleFlash: {fileID: 3575666771308418508}
   muzzleFlashPrefab: {fileID: 1743301284569550, guid: ad2ab49d0a2a17148bd51c93d977bdbc,
     type: 3}
-  muzzleFlashScale: {x: 0, y: 0, z: 0}
+  muzzleFlashScale: {x: 0.3, y: 0.3, z: 0.3}
   impulse: {fileID: 7675684893833362411}
-  sound1: {fileID: 0}
+  sound1: {fileID: 8300000, guid: 27330ae71af679a4eb582b684bdb5a6a, type: 3}
   dribbleBoost: 20
   m_defaultMaterial: {fileID: 2100000, guid: cff0f8a4e9c85a045be6d610d20b87b3, type: 2}
   m_foundMaterial: {fileID: 2100000, guid: f72aa466e5d586443aef3e07ea55c703, type: 2}
@@ -173,9 +175,105 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainCamera: {fileID: 0}
   otherCamera: {fileID: 0}
-  mainScale: 0
-  otherScale: 0
+  mainScale: 1
+  otherScale: 3
   cameraSpeed: 3
+--- !u!82 &9017604819922879842
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1851200728985901638}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1853176184519552874
 GameObject:
   m_ObjectHideFlags: 0
@@ -187,7 +285,6 @@ GameObject:
   - component: {fileID: 1853176184519552875}
   - component: {fileID: 1853176184519552870}
   - component: {fileID: 1853176184519552873}
-  - component: {fileID: 1853176184519552872}
   - component: {fileID: 1853176184519552871}
   m_Layer: 12
   m_Name: Muzzle
@@ -255,19 +352,6 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!135 &1853176184519552872
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1853176184519552874}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 0
-  serializedVersion: 2
-  m_Radius: 2
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &1853176184519552871
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -88,6 +88,8 @@ public class MessageUIManager : MonoBehaviour {
         }else if(colType==PlayerColType.EnemyCol){
             enemyColTime += Time.deltaTime;
             damageTime += Time.deltaTime;
+        }else if(colType==PlayerColType.SceneChange){
+            
         }else{
 
         }
@@ -99,5 +101,6 @@ public enum PlayerColType{
     Normal,
     Pickup,
     EnemyNear,
-    EnemyCol
+    EnemyCol,
+    SceneChange
 }
