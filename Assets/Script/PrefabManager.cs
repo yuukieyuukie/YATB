@@ -5,7 +5,10 @@ using UnityEngine.SceneManagement;
 
 public class PrefabManager : MonoBehaviour
 {
+	Vector3[] pickupPosStage3;
+	Vector3[] kirehashiPosStage3;
 	Vector3[] enemyPosStage3;
+	
 	void Awake(){
 
 		//配置するオブジェクトのプレハブのパスを設定
@@ -14,7 +17,7 @@ public class PrefabManager : MonoBehaviour
 		string pickupPrefabPath = "Prefabs/PickUp";
 		string cursorPrefabPath = "Prefabs/Cursor";
 		string kirehashiPrefabPath = "Prefabs/Kirehashi";
-		string boss1PrefabPath = "Prefabs/SplitMetalBall";
+		//string boss1PrefabPath = "Prefabs/SplitMetalBall";
 		
 		//配置するオブジェクトの大きさを設定
 		Vector3 ballScale = new Vector3 (8f, 8f, 8f);
@@ -22,37 +25,11 @@ public class PrefabManager : MonoBehaviour
 		Vector3 pickupScale = new Vector3 (1.5f, 1.5f, 1.5f);
 		Vector3 cursorScale = new Vector3 (0.1f, 1f, 1f);
 		Vector3 kirehashiScale = new Vector3 (1f, 0.1f, 1f);
-		Vector3 boss1Scale = new Vector3 (9f, 9f, 9f);
-		Vector3 bossHpScale = new Vector3 (0.09f, 0.09f, 0.09f);
+		//Vector3 boss1Scale = new Vector3 (9f, 9f, 9f);
+		//Vector3 bossHpScale = new Vector3 (0.09f, 0.09f, 0.09f);
 
 
-		//配置するアイテムの位置を設定
-		Vector3[] pickupPosStage3 = new Vector3[8] {
-			new Vector3(-130f, 2f, -55f),
-			new Vector3(-145f, 2f, -25f),
-			new Vector3(-100f, 2f, 0f),
-			new Vector3(-90f, 2f, 0f),
-			new Vector3(-30f, 2f, 20f),
-			new Vector3(-20f, 2f, 20f),
-			new Vector3(-150f, 2f, 10f),
-			new Vector3(-140f, 2f, 10f)
-		};
 
-		Vector3[] kirehashiPosStage3 = new Vector3[3] {
-			new Vector3(-100f, 2f, 10f),
-			new Vector3(-105f, 2f, 20f),
-			new Vector3(-110f, 2f, 10f)
-		};
-
-		enemyPosStage3 = new Vector3[6] {
-			new Vector3(Random.Range(-105.0f, -95.0f), 2f, Random.Range(-5.0f, 10.0f)),
-			new Vector3(Random.Range(-105.0f, -95.0f), 2f, Random.Range(-5.0f, 10.0f)),
-			new Vector3(Random.Range(-105.0f, -95.0f), 2f, Random.Range(-5.0f, 10.0f)),
-			new Vector3(-105.0f, 3f, 60.0f),
-			new Vector3(-90.0f, 3f, 60.0f),
-			new Vector3(-140.0f, 4.65f, 80.0f)
-
-		};
 
 		List<GameObject> pickup_obj = new List<GameObject>();
 		List<GameObject> kirehashi_obj = new List<GameObject>();
@@ -66,6 +43,30 @@ public class PrefabManager : MonoBehaviour
 		}else if(SceneManager.GetActiveScene().name=="Stage2"){
 			//stage2のアイテム場所を設定
 		}else if(SceneManager.GetActiveScene().name=="Stage3-a"){
+			pickupPosStage3 = new Vector3[8] {
+				new Vector3(-130f, 2f, -55f),
+				new Vector3(-145f, 2f, -25f),
+				new Vector3(-100f, 2f, 0f),
+				new Vector3(-90f, 2f, 0f),
+				new Vector3(-30f, 2f, 20f),
+				new Vector3(-20f, 2f, 20f),
+				new Vector3(-150f, 2f, 10f),
+				new Vector3(-140f, 2f, 10f)
+			};
+
+			kirehashiPosStage3 = new Vector3[3] {
+				new Vector3(-100f, 2f, 10f),
+				new Vector3(-105f, 2f, 20f),
+				new Vector3(-110f, 2f, 10f)
+			};
+
+			enemyPosStage3 = new Vector3[3] {
+				new Vector3(Random.Range(-105.0f, -95.0f), 2f, Random.Range(-25.0f, -10.0f)),
+				new Vector3(-105.0f, 3f, 60.0f),
+				new Vector3(-90.0f, 3f, 60.0f),
+				//new Vector3(-140.0f, 4.65f, 80.0f)
+
+			};
 			for(int i=0;i<pickupPosStage3.Length;i++){
 				pickup_obj.Add(createPrefab(pickupPrefabPath, pickupPosStage3[i], this.gameObject.transform.rotation));
 				pickup_obj[i].transform.localScale = pickupScale;
@@ -77,25 +78,39 @@ public class PrefabManager : MonoBehaviour
 				kirehashi_obj[i].name = "Kirehashi"+i;
 			}
 			for(int i=0;i<enemyPosStage3.Length;i++){
-				if(i<enemyPosStage3.Length-1){
-				enemy_obj.Add(createPrefab(ballPrefabPath, enemyPosStage3[i], this.gameObject.transform.rotation));
-				enemy_obj[i].transform.localScale = ballScale;
-				enemy_obj[i].name = "enemy"+i;
-				hpbar_obj.Add(createPrefab(hpPrefabPath, enemyPosStage3[i], this.gameObject.transform.rotation));
-				hpbar_obj[i].transform.localScale = hpScale;
-				hpbar_obj[i].name = "HP"+i;
-				}
-				else{
-				enemy_obj.Add(createPrefab(boss1PrefabPath, enemyPosStage3[i], this.gameObject.transform.rotation));
-				enemy_obj[i].transform.localScale = boss1Scale;
-				enemy_obj[i].name = "enemy"+i;
-				hpbar_obj.Add(createPrefab(hpPrefabPath, enemyPosStage3[i], this.gameObject.transform.rotation));
-				hpbar_obj[i].transform.localScale = bossHpScale;
-				hpbar_obj[i].name = "HP"+i;
-				}
+				//if(i<enemyPosStage3.Length-1){
+					enemy_obj.Add(createPrefab(ballPrefabPath, enemyPosStage3[i], this.gameObject.transform.rotation));
+					enemy_obj[i].transform.localScale = ballScale;
+					enemy_obj[i].name = "enemy"+i;
+					hpbar_obj.Add(createPrefab(hpPrefabPath, enemyPosStage3[i], this.gameObject.transform.rotation));
+					hpbar_obj[i].transform.localScale = hpScale;
+					hpbar_obj[i].name = "HP"+i;
+				//}
+				// else{
+				// 	enemy_obj.Add(createPrefab(boss1PrefabPath, enemyPosStage3[i], this.gameObject.transform.rotation));
+				// 	enemy_obj[i].transform.localScale = boss1Scale;
+				// 	enemy_obj[i].name = "enemy"+i;
+				// 	hpbar_obj.Add(createPrefab(hpPrefabPath, enemyPosStage3[i], this.gameObject.transform.rotation));
+				// 	hpbar_obj[i].transform.localScale = bossHpScale;
+				// 	hpbar_obj[i].name = "HP"+i;
+				// }
 			}
 
 
+		}else if(SceneManager.GetActiveScene().name=="Stage3-a2"){
+			pickupPosStage3 = new Vector3[5] {
+				new Vector3(-95f, 11.5f, 93f),
+				new Vector3(-105f, 11.5f, 93f),
+				new Vector3(-115f, 11.5f, 93f),
+				new Vector3(-63f, 11.5f, 0f),
+				new Vector3(-137f, 11.5f, 4f)
+			};
+			for(int i=0;i<pickupPosStage3.Length;i++){
+				pickup_obj.Add(createPrefab(pickupPrefabPath, pickupPosStage3[i], this.gameObject.transform.rotation));
+				pickup_obj[i].transform.localScale = pickupScale;
+				pickup_obj[i].name = "PickUp"+i;
+			}
+			
 		}else if(SceneManager.GetActiveScene().name=="Stage3-b"){
 
 		}

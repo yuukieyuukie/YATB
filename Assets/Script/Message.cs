@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-//using System.ValueTuple;
 using System;
 
 public class Message : MonoBehaviour {
@@ -29,44 +28,22 @@ public class Message : MonoBehaviour {
 	private RectTransform TextGauge;
 	private Slider bar;
 
-	//　1回のメッセージの最大文字数
-	[SerializeField]
-	private int maxTextLength = 90;
-	//　1回のメッセージの現在の文字数
-	private int textLength = 0;
-	//　メッセージの最大行数
-	[SerializeField]
-	private int maxLine = 3;
-	//　現在の行
-	private int nowLine = 0;
-	//　テキストスピード
-	[SerializeField]
-	private float textSpeed = 0.03f;
-	//　経過時間
-	private float elapsedTime = 0f;
-	//　今見ている文字番号
-	private int nowTextNum = 0;
-	
-	//　クリックアイコンの点滅秒数
-	[SerializeField]
-	private float clickFlashTime = 0.2f;
-	//　1回分のメッセージを表示したかどうか
-	private bool isOneMessage = false;
-	//　メッセージをすべて表示したかどうか
 	private bool isEndMessage = false;
-	//＠がいくつ出たか
-	private int atNum;
 
+	ScoreManager scoreManager = null;
 
 	void Start(){
 
 		messageText = GameObject.Find("DialoguePanel/Text").GetComponent<Text>();
-		//Debug.Log(messageText);
 		messageText.text = "";
 
 		TextGauge=GameObject.Find("DialoguePanel/TextGauge").GetComponent<RectTransform>(); //GameObjectから親要素を取得
 		bar = TextGauge.transform.Find("bar").GetComponent <Slider>(); //transformで子要素を取得
 		player = GameObject.Find("Player");
+
+		if(scoreManager==null){
+			scoreManager = gameObject.AddComponent<ScoreManager>();
+        }
 
 		switch(SceneManager.GetActiveScene().name){
 			case "Prologue":
@@ -79,11 +56,7 @@ public class Message : MonoBehaviour {
 				);
 				break;
 			case "Stage1":
-				// SetMessage("ノベレ「Stage1ですよお兄さん。」\n＠"
-				// 	+ "ノベレ「やっちまいましょう。」\n"
-				// );
-				//SetMessage2("ノベレ「Stage1ですよお兄さん。」\n＠");
-				//SetMessage2("ノベレ「やっちまいましょう。」\n＠");
+
 
 				break;
 			case "ScenarioScene1":
@@ -108,17 +81,29 @@ public class Message : MonoBehaviour {
 				);
 				break;
 			case "Stage3-a":
-				SetMessage2("ここは何に使われた場所でしょうかね。", 0);
-				SetMessage2("コンテナだらけでサビ臭いと言いますか。", 0);
-				SetMessage2("敵機も多そうです。慎重に進んでくださいね。", 0);
-				SetMessage2("おっ、あんなところにエスカレーターがある。", 1);
-				SetMessage2("先に進めそうだから見とけよ見とけ。", 1);
-				SetMessage2("何だかゴールが近づいてるようなそんな気がします", 2);
-				SetMessage2("でも目の前のフェンスが邪魔して先に進めませんね・・・", 2);
-				SetMessage2("どこかに動かす仕組みがあるのではないでしょうか？", 2);
-				SetMessage2("奥の方に怪しげなスイッチがありますよ！", 3);
-				SetMessage2("アレを押せたら下のフェンスが開くんじゃないでしょうか？", 3);
-
+				dai_i = 0;
+				if(scoreManager.getLanguage()==0){	
+					SetMessage2("ここは何に使われた場所でしょうかね。", 0);
+					SetMessage2("コンテナだらけでサビ臭いと言いますか。", 0);
+					SetMessage2("敵機も多そうです。慎重に進んでくださいね。", 0);
+					SetMessage2("さっそく敵機がうろついてますね。", 1);
+					SetMessage2("さっさとやっつけて階段に向かいましょう。", 1);
+				}else if(scoreManager.getLanguage()==1){
+					SetMessage2("aiu eoiu dkg fmn mnlc kdo frk.", 0);
+					SetMessage2("ak sooeji ijdf jdgkcfn bk fgh vdggw rsf.", 1);
+				}
+				break;
+			case "Stage3-a2":
+				dai_i = 2;
+				if(scoreManager.getLanguage()==0){
+					SetMessage2("周囲に敵機はいなさそうです。", 2);
+					SetMessage2("ただ、地形が少々複雑なようです。迷わないようお気をつけて。", 2);
+					SetMessage2("イレボン、左の窓の奥の方に怪しげなスイッチがありますよ！", 3);
+					SetMessage2("アレを押せば１階のフェンスが動きそうですがこちらからは入れないようです。", 3);
+				}else if(scoreManager.getLanguage()==1){
+					SetMessage2("cjhbi ofgyhk oko, lopb ihdcith ghbu xhu.", 2);
+					SetMessage2("odk otui uyru yfdfg hitird uti ojff kdx o!", 3);
+				}
 				break;
 			case "Stage3-b":
 				SetMessage("ノベレ「こっちにもいるのですね。まるで先回りしているかのよう・・・。」\n＠"
@@ -147,20 +132,6 @@ public class Message : MonoBehaviour {
 			}
 		}
 	}
-
-	public void setNextMessage(){
-		dai_i++;
-		chu_i = 0;
-		//表示するメッセージをセット
-		for(int i=0;i<messageAll.Count;i++){
-			if(dai_i==messageAll[i].num){
-				messageNow.Add(messageAll[i].dialogue);
-				nextTimerNow.Add(messageAll[i].nextTimer);
-			}
-		}
-		transform.GetChild (0).gameObject.SetActive (true);
-	}
-
 
 	void Update(){
 		//Pause中の入力を受け付けない
@@ -202,17 +173,27 @@ public class Message : MonoBehaviour {
 	}
 
 	//　他のスクリプトから新しいメッセージを設定
-	public void SetMessagePanel(string message){
-		SetMessage (message);
+	// public void SetMessagePanel(string message){
+	// 	SetMessage (message);
+	// 	transform.GetChild (0).gameObject.SetActive (true);
+	// 	isEndMessage = false;
+	// }
+
+	public void setNextMessage(){
+		dai_i++;
+		chu_i = 0;
+		//表示するメッセージをセット
+		for(int i=0;i<messageAll.Count;i++){
+			if(dai_i==messageAll[i].num){
+				messageNow.Add(messageAll[i].dialogue);
+				nextTimerNow.Add(messageAll[i].nextTimer);
+			}
+		}
 		transform.GetChild (0).gameObject.SetActive (true);
-		isEndMessage = false;
 	}
 
 	public bool getIsEnd(){
 		return isEndMessage;
 	}
 
-	private int getAtNum(){
-		return atNum;
-	}
 }

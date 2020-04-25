@@ -34,6 +34,9 @@ public class ChangeCamera : MonoBehaviour {
 			eventTime++;
 		}
 
+	}
+
+	void FixedUpdate(){
 		if(eventTime>210){
 			eventCamera.SetActive(false);
 			mainCamera.SetActive(true);

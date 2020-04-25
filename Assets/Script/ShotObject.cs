@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class ShotObject : MonoBehaviour
 {
@@ -16,6 +17,10 @@ public class ShotObject : MonoBehaviour
     [SerializeField]
     public Vector3 metalImpactsScale;
 
+    private GameObject door;
+    private GameObject cubeDoor;
+    private GameObject colliderDoor;
+
     void Awake(){
 
     }
@@ -26,9 +31,19 @@ public class ShotObject : MonoBehaviour
         forward = characterObject.transform.forward;
         timer = 0f;
 
+        if(SceneManager.GetActiveScene().name=="Stage3-a2"){
+            door = GameObject.Find("door");
+            cubeDoor = GameObject.Find("CubeDoor");
+            colliderDoor = GameObject.Find("ColliderDoor");
+        }
+
     }
  
     void Update(){
+
+    }
+
+    void FixedUpdate(){
         rb.velocity = forwardAxis * forward * shot_speed;
 
         timer += Time.deltaTime;//弾の存在時間カウント
@@ -69,6 +84,11 @@ public class ShotObject : MonoBehaviour
             col.gameObject.GetComponent<BossStatus>().TakeDamage(damage);
 			Destroy(this.gameObject);
             CallImpactEffect(gameObject.transform);
+        }else if(col.gameObject.tag == "Breakable") {
+            door.SetActive(false);
+            cubeDoor.SetActive(false);
+            colliderDoor.SetActive(false);
+
         }
 	}
 

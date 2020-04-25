@@ -6,7 +6,9 @@ using UnityEngine.UI;
 public class SearchItem : MonoBehaviour{
 
     public Text scoreText; // スコアの UI
-    private int score = 0; // スコア    
+    static private int score = 0; // スコア    
+    public Text secretText;
+    static private int secretScore = 0;  
     private GameObject messageUI;
 
     private GameObject countDownTimer; //Pickup取得時タイム加算
@@ -14,8 +16,8 @@ public class SearchItem : MonoBehaviour{
     private Message message;
 
     void Start(){
-        // UI を初期化
         SetCountText();
+        SetSecretCountText();
         messageUI = GameObject.Find("MessageUI");
         countDownTimer = GameObject.Find("MessageUI/HUD/Timer");
         message = messageUI.GetComponent<Message>();
@@ -40,14 +42,19 @@ public class SearchItem : MonoBehaviour{
         }else if(col.gameObject.CompareTag("Dialogue")){
             col.gameObject.SetActive(false);
             message.setNextMessage();
+        }else if(col.gameObject.CompareTag("Secret")){
+            col.gameObject.SetActive(false);
+            secretScore = secretScore + 1;
+            SetSecretCountText ();
         }
     }
 
     // UI の表示を更新する
-    void SetCountText(){
+    private void SetCountText(){
         scoreText.text = "Count: " + score.ToString();
-        if (score >= 8){
+    }
 
-        }
+    private void SetSecretCountText(){
+        secretText.text = "SecretCount: " + secretScore.ToString();
     }
 }

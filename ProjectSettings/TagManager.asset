@@ -18,6 +18,8 @@ TagManager:
   - Boss
   - Previous
   - Next
+  - Secret
+  - Breakable
   layers:
   - Default
   - TransparentFX

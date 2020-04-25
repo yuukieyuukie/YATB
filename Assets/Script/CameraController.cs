@@ -16,6 +16,7 @@ public class CameraController : MonoBehaviour{
 
     private Quaternion mainQuaternion;
 
+
     void Start(){
         prevPlayerPos = this.gameObject.transform.position;
         mainCamera.transform.position = prevPlayerPos + new Vector3(1f, 2f, 1f);
@@ -37,9 +38,11 @@ public class CameraController : MonoBehaviour{
             }
         }
         // offset = (transform.position - this.gameObject.transform.position).sqrMagnitude;
-        moveMainCamera();
-        moveOtherCamera();
-        //Debug.Log(mainQuaternion.eulerAngles.x);
+        
+        if(this.GetComponent<PlayerController>().getBallMagnitude()>0.3f){
+            moveMainCamera();
+            moveOtherCamera();
+        }
         
     }
 
@@ -60,17 +63,7 @@ public class CameraController : MonoBehaviour{
         mainCamera.transform.LookAt (this.gameObject.transform.position);
         prevPlayerPos = this.gameObject.transform.position;
 
-        mainQuaternion = mainCamera.transform.rotation;
-        // if(10f<=mainQuaternion.eulerAngles.x&&mainQuaternion.eulerAngles.x<=70f){}
-        // else{
-        //     if(mainQuaternion.eulerAngles.x<10f){
-        //         mainCamera.transform.rotation = Quaternion.Euler(10f, mainQuaternion.eulerAngles.y, mainQuaternion.eulerAngles.z);
-        //     }
-        //     if(mainQuaternion.eulerAngles.x>70f){
-        //         mainCamera.transform.rotation = Quaternion.Euler(70f, mainQuaternion.eulerAngles.y, mainQuaternion.eulerAngles.z);
-        //     }
-        // }
-        
+        mainQuaternion = mainCamera.transform.rotation;        
     }
 
     //常にボールの背後に付いて追っかけるカメラ

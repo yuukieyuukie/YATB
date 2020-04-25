@@ -25,10 +25,11 @@ public class PlayerController : MonoBehaviour{
     [SerializeField]
     private GameObject impulse;
     [SerializeField]
+    private GameObject impulse2;
+    [SerializeField]
     private AudioClip sound1;
     private AudioSource audioSource;
 
-    private int state; //状態（生存、死亡、ゴール 後々enum？）
     private bool untouchable;
     private int untouchableTime;
     private int dribble;
@@ -60,7 +61,7 @@ public class PlayerController : MonoBehaviour{
     private GameObject enemyNearPanel;
     private GameObject enemyCollisionPanel;
     private GameObject messageUI;
-    private GameObject changeCamera;
+    
     private GameObject changeSwitchState;
     private GameObject eventCamera;
 
@@ -68,6 +69,11 @@ public class PlayerController : MonoBehaviour{
     private float moveVertical;
 
     private List<GameObject> dribbleGauge = new List<GameObject>();
+
+    private Vector3 previousPos = new Vector3(-53f,2f,69f);
+
+    private int dribbleFlameTime = 0;
+    private bool dribbleFlameTimeFlg = false;
     
     void Start(){
         rb = GetComponent<Rigidbody>();
@@ -85,10 +91,16 @@ public class PlayerController : MonoBehaviour{
             dribbleGauge.Add(hud.transform.Find("Dribble"+(i)).gameObject);
             if(i!=0)hud.transform.Find("Dribble"+(i)).gameObject.SetActive(false);
         }
-        changeCamera = GameObject.Find("ChangeCamera");
+        
         changeSwitchState = GameObject.Find("Switch1");
         eventCamera = GameObject.Find("Event Camera"); //exceptionを直すため
         
+        StageUIManager suim = sceneChanger.GetComponent<StageUIManager>();
+        
+        if(suim.getNextPrevFlg()){
+            this.gameObject.transform.position = previousPos;
+            suim.setNextPrevFlg(false);
+        }
         
     }
 
@@ -96,12 +108,25 @@ public class PlayerController : MonoBehaviour{
     void FixedUpdate(){
 
         Vector3 cameraForward = Vector3.zero;
-        if(!changeCamera.GetComponent<ChangeCamera>().getEventCameraFlg()){
+        //if(!changeCamera.GetComponent<ChangeCamera>().getEventCameraFlg()){
             cameraForward = Vector3.Scale(Camera.main.transform.forward, new Vector3(1, 0, 1)).normalized;// カメラの方向から、X-Z平面の単位ベクトルを取得
-        }
+        //}
         Vector3 moveForward = cameraForward * moveVertical + Camera.main.transform.right * moveHorizontal;// 方向キーの入力値とカメラの向きから、移動方向を決定
         if(rb.velocity.magnitude < maxSpeed){
             rb.AddForce(100f*moveForward.normalized * Time.deltaTime * (speed/Mathf.Sqrt(2.0f)) + new Vector3(0, rb.velocity.y, 0));// 移動方向にスピードを掛ける。ジャンプや落下がある場合は、別途Y軸方向の速度ベクトルを足す。
+        }
+
+        if(dribbleFlameTime==0 && dribbleFlameTimeFlg){
+            impulse2.SetActive(true);
+            dribbleFlameTime++;
+        }
+        else if(dribbleFlameTime!=0 && dribbleFlameTimeFlg){
+            dribbleFlameTime++;
+            if(dribbleFlameTime>60){
+                impulse2.SetActive(false);
+                dribbleFlameTimeFlg = false;
+                dribbleFlameTime = 0;
+            }
         }
 
         if(jumpFlg && landFlg){
@@ -113,7 +138,7 @@ public class PlayerController : MonoBehaviour{
             dribbleFlg = false;
         }
 
-                //敵機に接触で一定時間無敵状態
+        //敵機に接触で一定時間無敵状態
         if(untouchable){
             untouchableTime ++;
             if(untouchableTime>90){
@@ -175,16 +200,18 @@ public class PlayerController : MonoBehaviour{
                 angle = 90;
             }else if(Input.GetButton("Left")){
                 angle = -90;
-            }else if(Input.GetButton("Up") || Input.GetButton("Down")){
+            }else if(Input.GetButton("Up")){
                 angle = 0;
+            }else if(Input.GetButton("Down")){
+                angle = 180;
             }
             dribbleFlg = true;
+            dribbleFlameTimeFlg = true;
             
             changeFalseDribbleGauge(dribble);
             dribble--;
             changeTrueDribbleGauge(dribble);
             impulse.GetComponent<EffekseerEmitter>().Play();
-
 
         }
 
@@ -275,6 +302,7 @@ public class PlayerController : MonoBehaviour{
             suim.setCurrentScreen(StageUIScreen.Previous);
             MessageUIManager muim = messageUI.GetComponent<MessageUIManager>();
             muim.checkPlayerColType(PlayerColType.SceneChange);
+            
         }else if(col.gameObject.CompareTag("Next")){
             StageUIManager suim = sceneChanger.GetComponent<StageUIManager>();
             suim.setCurrentScreen(StageUIScreen.Next);
@@ -296,20 +324,20 @@ public class PlayerController : MonoBehaviour{
         }else if(col.gameObject.CompareTag("Floor")){
             jumpFlg = false;
         }else if(col.gameObject.CompareTag("Switch") && !changeSwitchState.GetComponent<ChangeSwitchState>().getSwitchState()){
-            changeCamera.GetComponent<ChangeCamera>().setEventCameraFlg(true);
-            changeSwitchState.GetComponent<ChangeSwitchState>().setSwitchState(true);
+            
+            ChangeSwitchState.setSwitchState(true);
         }
         //Debug.Log("jumpFlg: "+jumpFlg);
         
     }
 
 
-    public int getState(){
-        return state;
-    }
-
     public bool getJumpFlg(){
         return jumpFlg;
+    }
+
+    public float getBallMagnitude(){
+        return rb.velocity.magnitude;
     }
 
 }

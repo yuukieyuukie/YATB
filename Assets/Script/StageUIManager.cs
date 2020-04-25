@@ -26,6 +26,10 @@ public class StageUIManager : MonoBehaviour{
 
     private GameObject moveWall;
 
+    private static bool nextToPrev;
+
+    ScoreManager scoreManager = null;
+
     void Start(){
         moveWall = GameObject.Find("Wall/Fence (1)");
         if(SceneManager.GetActiveScene().name!="Menu" && SceneManager.GetActiveScene().name!="Prologue"){
@@ -57,6 +61,7 @@ public class StageUIManager : MonoBehaviour{
                 Time.timeScale = 1f;
                 cdt.initTotalTime();
                 moveWall.GetComponent<MoveWall>().setPos();
+                ChangeSwitchState.setSwitchState(false);
             }
 
         }else if(currentScreen == StageUIScreen.Game){
@@ -88,7 +93,7 @@ public class StageUIManager : MonoBehaviour{
             transitionCanvas.SetActive(true);
             if(transitionCanvas.transform.Find("Image").GetComponent <TransitionController>().getCorEndFlg()){
                 SceneManager.LoadScene("stage3-a");
-                
+                nextToPrev = true;
             }
         }else if(currentScreen == StageUIScreen.Next){
             //transition
@@ -99,6 +104,15 @@ public class StageUIManager : MonoBehaviour{
 
         }else if(currentScreen == StageUIScreen.GameClear){
             GameClearUIPrefab.SetActive(true);
+            //クリアタイムを保存
+            if(scoreManager==null){
+                scoreManager = gameObject.AddComponent<ScoreManager>();
+                scoreManager.saveScore(cdt.getMinute(), cdt.getSeconds());
+            }
+            if(Input.GetButtonDown ("Submit")){
+                GameClearUIPrefab.SetActive(false);
+                SceneManager.LoadScene("Menu");
+            }
 
         }else if(currentScreen == StageUIScreen.GameOver){
             if (retryButtonFlag) {
@@ -161,6 +175,14 @@ public class StageUIManager : MonoBehaviour{
     //他スクリプトから呼び出して画面モード取得
     public StageUIScreen getCurrentScreen(){
         return currentScreen;
+    }
+
+    public void setNextPrevFlg(bool nextPrev){
+        nextToPrev = nextPrev;
+    }
+
+    public bool getNextPrevFlg(){
+        return nextToPrev;
     }
 
 

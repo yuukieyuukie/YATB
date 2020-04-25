@@ -18,13 +18,14 @@ namespace StateMachineSample{
 
         private Transform player;
 
-        private float speed = 6f;
+        private float wanderSpeed = 6f;
         private float rotationSmooth = 2f;
         //private float turretRotationSmooth = 0.8f;
         //private float attackInterval = 2f;
-        private float rush = 12f;
+        private float pursuitSpeed = 8f;
+        private float attackSpeed = 12f;
 
-        private float pursuitSqrDistance = 300f;
+        private float pursuitSqrDistance = 400f;
         private float attackSqrDistance = 100f;
         private float margin = 50f;
 
@@ -76,7 +77,8 @@ namespace StateMachineSample{
                 
                 // プレイヤーとの距離が小さければ、追跡ステートに遷移
                 float sqrDistanceToPlayer = Vector3.SqrMagnitude(owner.transform.position - owner.player.position);
-                if (sqrDistanceToPlayer <  owner.pursuitSqrDistance - owner.margin){ 
+                if (sqrDistanceToPlayer <  owner.pursuitSqrDistance - owner.margin){
+                    Debug.Log("Change -> Pursuit");
                     owner.ChangeState(EnemyState.Pursuit);
                 }
 
@@ -91,7 +93,7 @@ namespace StateMachineSample{
                 owner.transform.rotation = Quaternion.Slerp(owner.transform.rotation, targetRotation, Time.deltaTime * owner.rotationSmooth);
 
                 // 前方に進む
-                owner.transform.Translate(Vector3.forward * owner.speed * Time.deltaTime);
+                owner.transform.Translate(Vector3.forward * owner.wanderSpeed * Time.deltaTime);
             }
 
             public override void Exit() {}
@@ -117,12 +119,13 @@ namespace StateMachineSample{
                 // プレイヤーとの距離が小さければ、攻撃ステートに遷移
                 float sqrDistanceToPlayer = Vector3.SqrMagnitude(owner.transform.position - owner.player.position);
                 if (sqrDistanceToPlayer < owner.attackSqrDistance - owner.margin){ 
-                    //Debug.Log("pursuit_a");
+                    Debug.Log("Change -> Attack");
                     owner.ChangeState(EnemyState.Attack);
                 }
 
                 // プレイヤーとの距離が大きければ、徘徊ステートに遷移
-                if (sqrDistanceToPlayer > owner.pursuitSqrDistance + owner.margin){ 
+                if (sqrDistanceToPlayer > owner.pursuitSqrDistance + owner.margin){
+                    Debug.Log("Change -> Wander");
                     owner.ChangeState(EnemyState.Wander);
                 }
 
@@ -131,7 +134,7 @@ namespace StateMachineSample{
                 owner.transform.rotation = Quaternion.Slerp(owner.transform.rotation, targetRotation, Time.deltaTime * owner.rotationSmooth);
 
                 // 前方に進む
-                owner.transform.Translate(Vector3.forward * owner.rush * Time.deltaTime);
+                owner.transform.Translate(Vector3.forward * owner.pursuitSpeed * Time.deltaTime);
             }
 
             public override void Exit() {}
@@ -150,7 +153,8 @@ namespace StateMachineSample{
             public override void Execute(){
                 //プレイヤーとの距離が大きければ、追跡ステートに遷移
                 float sqrDistanceToPlayer = Vector3.SqrMagnitude(owner.transform.position - owner.player.position);
-                if (sqrDistanceToPlayer > owner.attackSqrDistance + owner.margin){ 
+                if (sqrDistanceToPlayer > owner.attackSqrDistance + owner.margin){
+                    Debug.Log("Change -> Pursuit");
                     owner.ChangeState(EnemyState.Pursuit);
                 }
                 
@@ -160,7 +164,7 @@ namespace StateMachineSample{
 
                 // 前方に進む
                 //owner.transform.Translate(Vector3.forward * owner.speed * Time.deltaTime);
-                owner.rb.velocity = targetRotation * Vector3.forward*2f;
+                owner.rb.velocity = targetRotation * Vector3.forward * owner.attackSpeed;
 
                 // // 砲台をプレイヤーの方向に向ける
                 // Quaternion targetRotation = Quaternion.LookRotation(owner.player.position - owner.turret.position);

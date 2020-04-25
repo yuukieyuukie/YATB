@@ -66,4 +66,12 @@ public class CountDownTimer : MonoBehaviour{
 	public void addRegainToTime(float regainValue){
 		seconds += regainValue;
 	}
+
+	public int getMinute(){
+		return minute;
+	}
+
+	public float getSeconds(){
+		return seconds;
+	}
 }

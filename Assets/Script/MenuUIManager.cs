@@ -35,8 +35,12 @@ public class MenuUIManager : MonoBehaviour {
     private Vector3 cursorPos;
 
     private UIScreen currentScreen;
-    
-    private int[] clearState = new int[4]{1,0,0,0}; //各ステージのクリアランクを保持
+
+    private static int language;
+
+    ScoreManager scoreManager = null;
+
+    //private int[] clearState = new int[4]{1,0,0,0}; //各ステージのクリアランクを保持
 
     void Start(){
         currentScreen = UIScreen.MainMenu;
@@ -47,11 +51,15 @@ public class MenuUIManager : MonoBehaviour {
         childSpecial_b = SpecialScene.transform.Find("Cheat");
 
         targetPos = CameraStartPos.gameObject.transform.position;
+
+        fromPos = menuCam.gameObject.transform.position;
+        toPos = targetPos;
     }
 
     void Update(){
 
         if(currentScreen != UIScreen.MainMenu && Input.GetButtonDown("Cancel")){
+            Debug.Log("this:"+language);
             CancelButtonClicked();
         }
 
@@ -67,7 +75,7 @@ public class MenuUIManager : MonoBehaviour {
             }
             if(Input.GetButtonDown("Submit")){
                 StartButtonClicked();
-                cameraMoveFlg = true;
+                
             }
 
         }else if(currentScreen == UIScreen.NewGame){
@@ -91,7 +99,19 @@ public class MenuUIManager : MonoBehaviour {
             }
 
         }else if(currentScreen == UIScreen.Options){
-
+            if(cursorNum < 1 && Input.GetButtonDown("Right")){
+                language = 1; //英語
+                cursorTf.Translate(150,0,0);
+                cursorPos = cursorTf.localPosition;
+                cursorNum++;
+            }else if(cursorNum > 0 && Input.GetButtonDown("Left")){
+                language = 0; //日本語
+                cursorTf.Translate(-150,0,0);
+                cursorPos = cursorTf.localPosition;
+                cursorNum--;
+            }
+            Debug.Log("choose:"+language);
+            Debug.Log("cursornum:"+cursorNum);
         }else if(currentScreen == UIScreen.Special){
             if(cursorNum < 1 && Input.GetButtonDown("Right")){
                 cursorTf.Translate(150,0,0);
@@ -114,33 +134,32 @@ public class MenuUIManager : MonoBehaviour {
             childSpecial_a.gameObject.SetActive(false);
             childSpecial_b.gameObject.SetActive(true);
         }
+    }
 
+    Vector3 fromPos;
+    Vector3 toPos;
+
+    void FixedUpdate(){
         //画面遷移する項目選択時、カメラに移動量を与える
         if(cameraMoveFlg){
-            cameraMove += 0.0001f;
+            cameraMove += 0.02f;
+            //項目選択時の画面遷移を実施
+            menuCam.transform.position = Vector3.Lerp (
+                fromPos,
+                toPos,
+                cameraMove
+            );
             if(cameraMove>=1f){
                 cameraMoveFlg = false;
                 cameraMove = 0f;
             }
         }
 
-        Vector3 fromPos;
-        Vector3 toPos;
-        fromPos = menuCam.gameObject.transform.position;
-        toPos = targetPos;
-        //項目選択時の画面遷移を実施
-        menuCam.transform.position = Vector3.Lerp (
-            fromPos,
-            toPos,
-            cameraMove
-        );
-
     }
-
 
     //スタート画面でいずれかのモードを選択した
     private void StartButtonClicked(){
-        
+        cameraMoveFlg = true;
         if(cursorNum==0){
             currentScreen = UIScreen.NewGame;
             targetPos = StartSceneObj.transform.position;
@@ -155,6 +174,9 @@ public class MenuUIManager : MonoBehaviour {
             targetPos = SelectSceneObj.transform.position;
 
         }else if(cursorNum==3){
+            Vector3 pos = new Vector3(120.0f, 550.0f, 0.0f);
+            cursorTf.localPosition = pos;
+            cursorNum = 0;
             currentScreen = UIScreen.Options;
             targetPos = OptionSceneObj.transform.position;
         }else if(cursorNum==4){
@@ -167,12 +189,13 @@ public class MenuUIManager : MonoBehaviour {
             targetPos = SpecialSceneObj.transform.position;
         }
 
-
+        fromPos = menuCam.gameObject.transform.position;
+        toPos = targetPos;
     }
 
     //ニューゲームモードで決定ボタンを押した
     private void NewGameButtonClicked(){
-        SceneManager.LoadScene("Prologue");
+        SceneManager.LoadScene("Stage3-a");
     }
 
     //ステージ選択モードでステージを選んだ
@@ -202,12 +225,24 @@ public class MenuUIManager : MonoBehaviour {
 
     private void CancelButtonClicked(){
 
+        if(currentScreen == UIScreen.Options){
+            //言語を保存
+            if(scoreManager==null){
+                scoreManager = gameObject.AddComponent<ScoreManager>();
+                scoreManager.saveLanguage(language);
+                Debug.Log("sm:"+scoreManager.getLanguage());
+            }
+        }
+
+        cameraMoveFlg = true;
         currentScreen = UIScreen.MainMenu;
         Vector3 pos = new Vector3(-190.0f, 95.0f, 0.0f);
         cursorTf.localPosition = pos;
         cursorNum = 0;
 
         targetPos = CameraStartPos.transform.position;
+        fromPos = menuCam.gameObject.transform.position;
+        toPos = targetPos;
     }
 
     //オブジェクトの子要素をすべて取得する
@@ -223,7 +258,10 @@ public class MenuUIManager : MonoBehaviour {
         // 配列に変換してreturn
         return gameObjects.ToArray();
     }
-
+    
+    // public static int getLanguage(){
+    //     return language;
+    // }
 }
 
 public enum UIScreen{
