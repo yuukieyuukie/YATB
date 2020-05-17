@@ -12,7 +12,8 @@ GameObject:
   - component: {fileID: 2626608513580679081}
   - component: {fileID: 2626608513580679086}
   - component: {fileID: 2626608513580679087}
-  m_Layer: 0
+  - component: {fileID: 349590072473995302}
+  m_Layer: 10
   m_Name: KillerWall
   m_TagString: Trap
   m_Icon: {fileID: 0}
@@ -91,3 +92,20 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &349590072473995302
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2626608513580679084}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b9a305e18de0c04dbd257a21cd47087, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sharedProfile: {fileID: 11400000, guid: 0c8505598c7825440bd978d6d8b12ebd, type: 2}
+  isGlobal: 1
+  blendDistance: 0
+  weight: 1
+  priority: 0

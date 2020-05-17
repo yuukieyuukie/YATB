@@ -37,7 +37,7 @@ public class Message : MonoBehaviour {
 		messageText = GameObject.Find("DialoguePanel/Text").GetComponent<Text>();
 		messageText.text = "";
 
-		TextGauge=GameObject.Find("DialoguePanel/TextGauge").GetComponent<RectTransform>(); //GameObjectから親要素を取得
+		TextGauge = GameObject.Find("DialoguePanel/TextGauge").GetComponent<RectTransform>(); //GameObjectから親要素を取得
 		bar = TextGauge.transform.Find("bar").GetComponent <Slider>(); //transformで子要素を取得
 		player = GameObject.Find("Player");
 
@@ -87,10 +87,13 @@ public class Message : MonoBehaviour {
 					SetMessage2("コンテナだらけでサビ臭いと言いますか。", 0);
 					SetMessage2("敵機も多そうです。慎重に進んでくださいね。", 0);
 					SetMessage2("さっそく敵機がうろついてますね。", 1);
-					SetMessage2("さっさとやっつけて階段に向かいましょう。", 1);
+					SetMessage2("さっさとやっつけて向こうに見える階段に向かいましょう。", 1);
 				}else if(scoreManager.getLanguage()==1){
-					SetMessage2("aiu eoiu dkg fmn mnlc kdo frk.", 0);
-					SetMessage2("ak sooeji ijdf jdgkcfn bk fgh vdggw rsf.", 1);
+					SetMessage2("I wonder what this place was used for.", 0);
+					SetMessage2("It's full of containers and it smells rusty.", 0);
+					SetMessage2("There seems to be a lot of enemies. Please proceed with caution.", 0);
+					SetMessage2("The enemy is already on the prowl, isn't it?", 1);
+					SetMessage2("Let's just get rid of them and head to the stairs you can see over there.", 1);
 				}
 				break;
 			case "Stage3-a2":
@@ -101,18 +104,21 @@ public class Message : MonoBehaviour {
 					SetMessage2("イレボン、左の窓の奥の方に怪しげなスイッチがありますよ！", 3);
 					SetMessage2("アレを押せば１階のフェンスが動きそうですがこちらからは入れないようです。", 3);
 				}else if(scoreManager.getLanguage()==1){
-					SetMessage2("cjhbi ofgyhk oko, lopb ihdcith ghbu xhu.", 2);
-					SetMessage2("odk otui uyru yfdfg hitird uti ojff kdx o!", 3);
+					SetMessage2("There seems to be no enemies around.", 2);
+					SetMessage2("However, the terrain seems to be a bit complicated. Be careful not to get lost.", 2);
+					SetMessage2("Elevon, there's a suspicious switch at the back of the window on the left!", 3);
+					SetMessage2("The fence on the first floor seems to move if you push on it, but you can't get in from here.", 3);
 				}
 				break;
 			case "Stage3-b":
-				SetMessage("ノベレ「こっちにもいるのですね。まるで先回りしているかのよう・・・。」\n＠"
-					+ "ノベレ「随分と数も多いようです。いよいよ\"アレ\"を試してみるときでしょうか。」\n＠"
-					+ "ノベレ「イレボン、あなたにはさらに強力な自衛武装が装備されています。」\n＠"
-					+ "ノベレ「本来の仕様であれば使用は不可能なのですが、緊急事態なので仕方ありません。汚れたボールどもに性能の差を思い知らせてやりましょう。」\n＠"
-					+ "ノベレ「\"Xキー\"で周囲を一掃する衝撃波を繰り出せます。敵に囲まれそうになったら使って下さい。」\n＠"
-					+ "ノベレ「まだ実装されていませんが。」\n"
-				);
+				dai_i = 0;
+				if(scoreManager.getLanguage()==0){	
+					SetMessage2("敵機に改造されたビリヤードのようです。", 0);
+					SetMessage2("ショットも効くと思いますが、このエリアには他にも有効な攻撃手段がありそうですよ！", 0);
+				}else if(scoreManager.getLanguage()==1){	
+					SetMessage2("It's like a modified billiard.", 0);
+					SetMessage2("I'm sure the shots will do the trick, but I think there are other effective offensive measures in this area!", 0);
+				}
 				break;
 			case "BadEnd":
 				SetMessage("ノベレ「壊れちゃった。悲しい。」\n"
@@ -147,13 +153,17 @@ public class Message : MonoBehaviour {
             //残り時間に応じgaugeを減らす
             bar.value = 1.0f - (restTimer / messageText.text.Length);
 
-			//メッセージに対応するタイマーが一定時間を超えるorメッセージ送りボタン押下で次のメッセージをセット
-			if(restTimer>nextTimerNow[chu_i] || Input.GetButtonDown("Submit")){
+			//メッセージに対応するタイマーが一定時間を超える 次のメッセージをセット
+			if(restTimer>nextTimerNow[chu_i]){
 				chu_i++;
 				restTimer = 0.0f;
 			}
 			else{
-				restTimer += Time.deltaTime*5.0f;
+				if(scoreManager.getLanguage()==0){
+					restTimer += Time.deltaTime*5.0f;
+				}else if(scoreManager.getLanguage()==1){
+					restTimer += Time.deltaTime*12.0f;
+				}
 			}
 		
 		}else{
@@ -171,13 +181,6 @@ public class Message : MonoBehaviour {
 	private void SetMessage2(string message, int number){
 		this.messageAll.Add(new hoge { dialogue=message, nextTimer=message.Length*1.0f, num=number });
 	}
-
-	//　他のスクリプトから新しいメッセージを設定
-	// public void SetMessagePanel(string message){
-	// 	SetMessage (message);
-	// 	transform.GetChild (0).gameObject.SetActive (true);
-	// 	isEndMessage = false;
-	// }
 
 	public void setNextMessage(){
 		dai_i++;

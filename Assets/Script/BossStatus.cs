@@ -17,7 +17,11 @@ public class BossStatus : MonoBehaviour, ParentStatus{
     }
 
     void Update(){
-        
+        Debug.Log("BossHP : "+life);
+        if(isLife && life<=0) {
+            isLife = false;
+            gameObject.GetComponent<MoveBoss>().TakeDamage();
+        }
     }
 
     public int GetHp() {
@@ -34,12 +38,13 @@ public class BossStatus : MonoBehaviour, ParentStatus{
 
     public void TakeDamage(int damage){
         life -= damage;
-        if(life==0) {
-            isLife = false;
-            gameObject.GetComponent<MoveEnemy>().TakeDamage();
-            CountDownTimer cdt = countDownTimer.GetComponent<CountDownTimer>();
-            cdt.addRegainToTime(10f);
-            life -= damage;
+
+    }
+
+    //タグ付オブジェクトに触れたときの処理
+    void OnCollisionEnter(Collision col){
+        if(col.gameObject.CompareTag("BossTrap")){
+            life -= 40;
         }
     }
 }

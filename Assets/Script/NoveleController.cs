@@ -30,7 +30,7 @@ public class NoveleController : MonoBehaviour{
         Vector3 targetPos = currentPlayerPos + scale * posVector;
         targetPos.x = targetPos.x + 1.5f;
         targetPos.z = targetPos.z + 1.5f;
-        targetPos.y = targetPos.y + 3.5f;
+        targetPos.y = targetPos.y + 4.5f;
         this.transform.position = Vector3.Lerp (
             this.transform.position,
             targetPos,

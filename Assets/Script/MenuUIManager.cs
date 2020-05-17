@@ -11,15 +11,13 @@ using System.Linq;
 public class MenuUIManager : MonoBehaviour {
 
     public GameObject menuCam;
-    public GameObject StartMenu;
+    public GameObject StartScene;
     public GameObject LoadScene;
     public GameObject SelectScene;
     public GameObject OptionsScene;
     public GameObject SpecialScene;
-    private Transform childSpecial_a;
-    private Transform childSpecial_b;
 
-    public GameObject StartSceneObj;
+    public GameObject NewGameSceneObj;
     public GameObject LoadSceneObj;
     public GameObject SelectSceneObj;
     public GameObject OptionSceneObj;
@@ -29,10 +27,6 @@ public class MenuUIManager : MonoBehaviour {
     private float cameraMove = 0f;
     private bool cameraMoveFlg;
 
-    public GameObject cursor;
-    private int cursorNum = 0;
-    private Transform cursorTf;
-    private Vector3 cursorPos;
 
     private UIScreen currentScreen;
 
@@ -40,99 +34,104 @@ public class MenuUIManager : MonoBehaviour {
 
     ScoreManager scoreManager = null;
 
-    //private int[] clearState = new int[4]{1,0,0,0}; //各ステージのクリアランクを保持
+    private GameObject nowIcon, nowLine,nowText;
+    private GameObject startIcon, optionIcon, exitIcon;
+    private GameObject startUnderline, optionUnderline, exitUnderline;
+    private GameObject startText, optionText, exitText;
+    private SelectMode selectMode;
+
+    //　非同期動作で使用するAsyncOperation
+	private AsyncOperation async;
+	//　シーンロード中に表示するUI画面
+	[SerializeField]
+	private GameObject loadUI;
+    private Color c;
+
+	private void NextScene() {
+
+		//　コルーチンを開始
+		StartCoroutine("LoadData");
+	}
+
+	IEnumerator LoadData() {
+		// シーンの読み込みをする
+		async = SceneManager.LoadSceneAsync("Stage3-a");
+        
+		//　読み込みが終わるまで
+		while(!async.isDone && c.a<1f){
+            c.a = async.progress;
+            
+			yield return null;
+		}
+	}
 
     void Start(){
+        
         currentScreen = UIScreen.MainMenu;
-        cursorTf = cursor.transform;
-        cursorPos = cursorTf.localPosition;
-
-        childSpecial_a = SpecialScene.transform.Find("Kirehashi");
-        childSpecial_b = SpecialScene.transform.Find("Cheat");
 
         targetPos = CameraStartPos.gameObject.transform.position;
 
         fromPos = menuCam.gameObject.transform.position;
         toPos = targetPos;
+
+        startIcon = GameObject.Find("MainCanvas/StartMenu/StartIcon");
+        optionIcon = GameObject.Find("MainCanvas/StartMenu/OptionIcon");
+        exitIcon = GameObject.Find("MainCanvas/StartMenu/ExitIcon");
+        startUnderline = GameObject.Find("MainCanvas/StartMenu/StartUnderline");
+        optionUnderline = GameObject.Find("MainCanvas/StartMenu/OptionUnderline");
+        exitUnderline = GameObject.Find("MainCanvas/StartMenu/ExitUnderline");
+        startText = GameObject.Find("MainCanvas/StartMenu/StartText");
+        optionText = GameObject.Find("MainCanvas/StartMenu/OptionText");
+        exitText = GameObject.Find("MainCanvas/StartMenu/ExitText");
+        nowIcon = startIcon;
+        nowLine = startUnderline;
+        nowText = startText;
+        selectMode = SelectMode.Start;
     }
 
     void Update(){
 
         if(currentScreen != UIScreen.MainMenu && Input.GetButtonDown("Cancel")){
-            Debug.Log("this:"+language);
+            Debug.Log("this.language:"+language);
             CancelButtonClicked();
         }
 
         if(currentScreen == UIScreen.MainMenu){
-            if(cursorNum < 4 && Input.GetButtonDown("Down")){
-                cursorTf.Translate(0,-70,0);
-                cursorPos = cursorTf.localPosition;
-                cursorNum++;
-            }else if(cursorNum > 0 && Input.GetButtonDown("Up")){
-                cursorTf.Translate(0,70,0);
-                cursorPos = cursorTf.localPosition;
-                cursorNum--;
+            if(Input.GetButtonDown("Down")){
+                setSelectUI(exitIcon, exitUnderline, exitText);
+                selectMode = SelectMode.Exit;
+            }else if(Input.GetButtonDown("Up")){
+                //special未実装
+            }else if(Input.GetButtonDown("Right")){
+                setSelectUI(optionIcon, optionUnderline, optionText);
+                selectMode = SelectMode.Option;
+            }else if(Input.GetButtonDown("Left")){
+                setSelectUI(startIcon, startUnderline, startText);
+                selectMode = SelectMode.Start;
             }
             if(Input.GetButtonDown("Submit")){
                 StartButtonClicked();
-                
             }
 
         }else if(currentScreen == UIScreen.NewGame){
+            if(Input.GetButtonDown("Left")){
+                selectMode = SelectMode.Story;
+            }else if(Input.GetButtonDown("Right")){
+                selectMode = SelectMode.StageSelect;
+            }
             if(Input.GetButtonDown("Submit")){
                 NewGameButtonClicked();
             }
         }else if(currentScreen == UIScreen.LoadScene){
-            
         }else if(currentScreen == UIScreen.SelectScene){
-            if(cursorNum < 3 && Input.GetButtonDown("Right")){
-                cursorTf.Translate(150,0,0);
-                cursorPos = cursorTf.localPosition;
-                cursorNum++;
-            }else if(cursorNum > 0 && Input.GetButtonDown("Left")){
-                cursorTf.Translate(-150,0,0);
-                cursorPos = cursorTf.localPosition;
-                cursorNum--;
-            }
-            if(Input.GetButtonDown("Submit")){
-                StageButtonClicked();
-            }
-
         }else if(currentScreen == UIScreen.Options){
-            if(cursorNum < 1 && Input.GetButtonDown("Right")){
+            if(Input.GetButtonDown("Right")){
                 language = 1; //英語
-                cursorTf.Translate(150,0,0);
-                cursorPos = cursorTf.localPosition;
-                cursorNum++;
-            }else if(cursorNum > 0 && Input.GetButtonDown("Left")){
+            }else if(Input.GetButtonDown("Left")){
                 language = 0; //日本語
-                cursorTf.Translate(-150,0,0);
-                cursorPos = cursorTf.localPosition;
-                cursorNum--;
             }
             Debug.Log("choose:"+language);
-            Debug.Log("cursornum:"+cursorNum);
         }else if(currentScreen == UIScreen.Special){
-            if(cursorNum < 1 && Input.GetButtonDown("Right")){
-                cursorTf.Translate(150,0,0);
-                cursorPos = cursorTf.localPosition;
-                cursorNum++;
-            }else if(cursorNum > 0 && Input.GetButtonDown("Left")){
-                cursorTf.Translate(-150,0,0);
-                cursorPos = cursorTf.localPosition;
-                cursorNum--;
-            }
-            if(Input.GetButtonDown("Submit")){
-                SpecialButtonClicked();
-            }
-
-        }else if(currentScreen == UIScreen.Special_a){
-            childSpecial_a.gameObject.SetActive(true);
-            childSpecial_b.gameObject.SetActive(false);
-            
-        }else if(currentScreen == UIScreen.Special_b){
-            childSpecial_a.gameObject.SetActive(false);
-            childSpecial_b.gameObject.SetActive(true);
         }
     }
 
@@ -157,70 +156,65 @@ public class MenuUIManager : MonoBehaviour {
 
     }
 
+    private void setSelectUI(GameObject icon, GameObject line, GameObject text){
+        nowIcon.SetActive(false);
+        nowLine.SetActive(false);
+        nowText.SetActive(false);
+        nowIcon = icon;
+        nowLine = line;
+        nowText = text;
+        nowIcon.SetActive(true);
+        nowLine.SetActive(true);
+        nowText.SetActive(true);
+    }
+
     //スタート画面でいずれかのモードを選択した
     private void StartButtonClicked(){
         cameraMoveFlg = true;
-        if(cursorNum==0){
-            currentScreen = UIScreen.NewGame;
-            targetPos = StartSceneObj.transform.position;
-        }else if(cursorNum==1){
-            currentScreen = UIScreen.LoadScene;
-            targetPos = LoadSceneObj.transform.position;
-        }else if(cursorNum==2){
-            Vector3 pos = new Vector3(-200.0f, 90.0f, 0.0f);
-            cursorTf.localPosition = pos;
-            cursorNum = 0;
-            currentScreen = UIScreen.SelectScene;
-            targetPos = SelectSceneObj.transform.position;
-
-        }else if(cursorNum==3){
-            Vector3 pos = new Vector3(120.0f, 550.0f, 0.0f);
-            cursorTf.localPosition = pos;
-            cursorNum = 0;
-            currentScreen = UIScreen.Options;
-            targetPos = OptionSceneObj.transform.position;
-        }else if(cursorNum==4){
-            Vector3 pos = new Vector3(-120.0f, 40.0f, 0.0f);
-            cursorTf.localPosition = pos;
-            cursorNum = 0;
-            currentScreen = UIScreen.Special;
-            var uiObjects = GetChildren("Kirehashi");
-            foreach(var uiObject in uiObjects) uiObject.SetActive(false);
-            targetPos = SpecialSceneObj.transform.position;
+        switch(selectMode){
+            case SelectMode.Start:
+                currentScreen = UIScreen.NewGame;
+                targetPos = NewGameSceneObj.transform.position;
+                break;
+            case SelectMode.Option:
+                Vector3 pos = new Vector3(10.0f, 550.0f, 0.0f);
+                currentScreen = UIScreen.Options;
+                targetPos = OptionSceneObj.transform.position;
+                break;
+            case SelectMode.Exit:
+                #if UNITY_EDITOR
+                    UnityEditor.EditorApplication.isPlaying = false;
+                #elif UNITY_STANDALONE
+                    UnityEngine.Application.Quit();
+                #endif
+                break;
         }
-
         fromPos = menuCam.gameObject.transform.position;
         toPos = targetPos;
     }
 
     //ニューゲームモードで決定ボタンを押した
     private void NewGameButtonClicked(){
-        SceneManager.LoadScene("Stage3-a");
+        NextScene();
+        
     }
 
     //ステージ選択モードでステージを選んだ
     private void StageButtonClicked(){
-        if(cursorNum==0){
-            SceneManager.LoadScene("Stage1");
-        }else if(cursorNum==1){
-            SceneManager.LoadScene("Stage2");
-        }else if(cursorNum==2){
-            SceneManager.LoadScene("Stage3-a");
-        }else if(cursorNum==3){
-            SceneManager.LoadScene("Stage3-b");
-        }
+        // if(cursorNum==0){
+        //     SceneManager.LoadScene("Stage1");
+        // }else if(cursorNum==1){
+        //     SceneManager.LoadScene("Stage2");
+        // }else if(cursorNum==2){
+        //     SceneManager.LoadScene("Stage3-a");
+        // }else if(cursorNum==3){
+        //     SceneManager.LoadScene("Stage3-b");
+        // }
     }
 
     //スペシャルモードでモードを選んだ
     private void SpecialButtonClicked(){
-        if(cursorNum==0){
-            currentScreen = UIScreen.Special_a;
-            var uiObjects = GetChildren("Kirehashi");
-            foreach(var uiObject in uiObjects) uiObject.SetActive(true);
-        }else if(cursorNum==1){
-            currentScreen = UIScreen.Special_b;
-            SceneManager.LoadScene("Stage2");
-        }
+
     }
 
     private void CancelButtonClicked(){
@@ -230,15 +224,13 @@ public class MenuUIManager : MonoBehaviour {
             if(scoreManager==null){
                 scoreManager = gameObject.AddComponent<ScoreManager>();
                 scoreManager.saveLanguage(language);
-                Debug.Log("sm:"+scoreManager.getLanguage());
+                Debug.Log("sm.language:"+scoreManager.getLanguage());
             }
         }
 
         cameraMoveFlg = true;
         currentScreen = UIScreen.MainMenu;
         Vector3 pos = new Vector3(-190.0f, 95.0f, 0.0f);
-        cursorTf.localPosition = pos;
-        cursorNum = 0;
 
         targetPos = CameraStartPos.transform.position;
         fromPos = menuCam.gameObject.transform.position;
@@ -246,22 +238,19 @@ public class MenuUIManager : MonoBehaviour {
     }
 
     //オブジェクトの子要素をすべて取得する
-    GameObject[] GetChildren(string parentName) {
-        // 検索し、GameObject型に変換
-        var parent = GameObject.Find(parentName) as GameObject;
-        // 見つからなかったらreturn
-        if(parent == null) return null;
-        // 子のTransform[]を取り出す
-        var transforms = parent.GetComponentsInChildren<Transform>();
-        // 使いやすいようにtransformsからgameObjectを取り出す
-        var gameObjects = from t in transforms select t.gameObject;
-        // 配列に変換してreturn
-        return gameObjects.ToArray();
-    }
-    
-    // public static int getLanguage(){
-    //     return language;
+    // GameObject[] GetChildren(string parentName) {
+    //     // 検索し、GameObject型に変換
+    //     var parent = GameObject.Find(parentName) as GameObject;
+    //     // 見つからなかったらreturn
+    //     if(parent == null) return null;
+    //     // 子のTransform[]を取り出す
+    //     var transforms = parent.GetComponentsInChildren<Transform>();
+    //     // 使いやすいようにtransformsからgameObjectを取り出す
+    //     var gameObjects = from t in transforms select t.gameObject;
+    //     // 配列に変換してreturn
+    //     return gameObjects.ToArray();
     // }
+    
 }
 
 public enum UIScreen{
@@ -271,16 +260,23 @@ public enum UIScreen{
     ,SelectScene
     ,Options
     ,Special
-    ,Special_a //Kirehashi
-    ,Special_b //Cheat
     ,Tutorial
-    ,Stage1
-    ,Stage2
-    ,Stage3_a
-    ,Stage3_b
-    ,BadEnd
-    ,GoodEnd
+    ,Exit
+    // ,Stage1
+    // ,Stage2
+    // ,Stage3_a
+    // ,Stage3_b
+    // ,BadEnd
+    // ,GoodEnd
 
+}
+
+public enum SelectMode{
+    Start
+    ,Option
+    ,Exit
+    ,Story
+    ,StageSelect
 }
 
 //クリア評価

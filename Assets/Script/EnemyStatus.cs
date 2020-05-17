@@ -3,21 +3,29 @@ using System.Collections.Generic;
 using UnityEngine;
 using StateMachineSample;
 
-public class EnemyStatus : MonoBehaviour, ParentStatus{
+public class EnemyStatus : MonoBehaviour{
     private int maxLife = 2;
     private int life;
     private GameObject countDownTimer;
 
-    private bool isLife;
+    private bool isLife = true;
+
+    void Awake(){
+        // Debug.Log(isLife);
+    }
 
     void Start(){
-        life = maxLife;
         isLife = true;
+        life = maxLife;
         countDownTimer = GameObject.Find("MessageUI/HUD/Timer");
     }
 
-    void Update(){
 
+    void Update(){
+        if(isLife && life<=0) {
+            isLife = false;
+            gameObject.GetComponent<MoveEnemy>().TakeDamage();
+        }
     }
 
     public int GetHp() {
@@ -34,12 +42,6 @@ public class EnemyStatus : MonoBehaviour, ParentStatus{
 
     public void TakeDamage(int damage){
         life -= damage;
-        if(life==0) {
-            isLife = false;
-            gameObject.GetComponent<MoveEnemy>().TakeDamage();
-            CountDownTimer cdt = countDownTimer.GetComponent<CountDownTimer>();
-            cdt.addRegainToTime(10f);
-            life -= damage;
-        }
     }
+    
 }

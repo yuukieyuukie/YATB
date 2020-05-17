@@ -8,7 +8,5 @@ interface ParentStatus{
 
     int GetMaxHp();
 
-    bool isLifeZero();
-
     void TakeDamage(int damage);
 }

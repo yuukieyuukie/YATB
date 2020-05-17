@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class CameraController : MonoBehaviour{
 
@@ -16,11 +17,22 @@ public class CameraController : MonoBehaviour{
 
     private Quaternion mainQuaternion;
 
+    private float height;
+    float height3a;
+    float height3b;
 
     void Start(){
         prevPlayerPos = this.gameObject.transform.position;
-        mainCamera.transform.position = prevPlayerPos + new Vector3(1f, 2f, 1f);
+        mainCamera.transform.position = prevPlayerPos + new Vector3(-1f, 4f, 1f);
+        mainCamera.transform.LookAt(prevPlayerPos);
         otherCamera.transform.position = prevPlayerPos;
+        height3a = 3.5f;
+        height3b = 7.0f;
+        if(SceneManager.GetActiveScene().name=="Stage3-a" || SceneManager.GetActiveScene().name=="Stage3-a2"){
+            height = height3a;
+        }else if(SceneManager.GetActiveScene().name=="Stage3-b"){
+            height = height3b;
+        }
     }
 
     void LateUpdate(){
@@ -49,12 +61,14 @@ public class CameraController : MonoBehaviour{
     //常にボールの背後に付いて追っかけるカメラ
     private void moveMainCamera(){
 
+
+
         offset = (mainCamera.transform.position - this.gameObject.transform.position).sqrMagnitude;
         Vector3 currentPlayerPos = this.gameObject.transform.position;
         Vector3 backVector = (prevPlayerPos - currentPlayerPos).normalized;
         posVector = (backVector == Vector3.zero) ? posVector : backVector;
         Vector3 targetPos = currentPlayerPos + mainScale * posVector;
-        targetPos.y = targetPos.y + 3.5f;
+        targetPos.y = targetPos.y + height;
         mainCamera.transform.position = Vector3.Lerp (
             mainCamera.transform.position,
             targetPos,

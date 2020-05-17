@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 public class StageUIManager : MonoBehaviour{
 
     public static StageUIScreen currentScreen;
+    private  StageUIScreen oldCurrentScreen;
     public CountDownTimer cdt;
 
     public GameObject GameClearUIPrefab;
@@ -21,6 +22,8 @@ public class StageUIManager : MonoBehaviour{
 	private GameObject pauseUIInstance;
 
     public GameObject Cursor;
+    private int cursorNum;
+    private Vector3 cursorWkPos;
 
     public GameObject transitionCanvas;
 
@@ -49,6 +52,7 @@ public class StageUIManager : MonoBehaviour{
         GameClearUIPrefab.SetActive(false);
         GameOverUIPrefab.SetActive(false);
         transitionCanvas.SetActive(false);
+        oldCurrentScreen = currentScreen;
         
     }
 
@@ -60,21 +64,30 @@ public class StageUIManager : MonoBehaviour{
                 currentScreen = StageUIScreen.Game;
                 Time.timeScale = 1f;
                 cdt.initTotalTime();
-                moveWall.GetComponent<MoveWall>().setPos();
+                if(SceneManager.GetActiveScene().name=="Stage3-a") moveWall.GetComponent<MoveWall>().setPos();
                 ChangeSwitchState.setSwitchState(false);
+            }else if (Input.GetButtonDown ("Pause")){
+                Time.timeScale = 1f;
+                SceneManager.LoadScene("Menu");
             }
+            oldCurrentScreen = currentScreen;
 
         }else if(currentScreen == StageUIScreen.Game){
             if (Input.GetButtonDown ("Pause")) {
-                if (pauseUIInstance == null) {
-                    pauseUIInstance = GameObject.Instantiate (pauseUIPrefab) as GameObject;
-                    pauseUIPrefab.SetActive(true);
-                    Time.timeScale = 0f;
-                } else {
-                    Destroy (pauseUIInstance);
-                    pauseUIPrefab.SetActive(false);
-                    Time.timeScale = 1f;
-                }
+                // if (pauseUIInstance == null) {
+                //     pauseUIInstance = GameObject.Instantiate (pauseUIPrefab) as GameObject;
+                //     pauseUIPrefab.SetActive(true);
+                //     Time.timeScale = 0f;
+                // } else {
+                //     Destroy (pauseUIInstance);
+                //     pauseUIPrefab.SetActive(false);
+                //     Time.timeScale = 1f;
+                // }
+                pauseUIPrefab.SetActive(true);
+                Time.timeScale = 0f;
+                currentScreen = StageUIScreen.Pause;
+                Cursor.transform.position = new Vector3(150f,225f, 0f);
+                cursorNum = 0;
             }
 
             //ゲーム中、失敗条件を満たすとゲームオーバー画面を表示フラグが立つ
@@ -83,9 +96,7 @@ public class StageUIManager : MonoBehaviour{
                 retryButtonFlag = true;
                 Cursor.SetActive(true);
             }
-            
-            
-
+            oldCurrentScreen = currentScreen;
         }else if(currentScreen == StageUIScreen.Dialogue){
 
         }else if(currentScreen == StageUIScreen.Previous){
@@ -95,27 +106,39 @@ public class StageUIManager : MonoBehaviour{
                 SceneManager.LoadScene("stage3-a");
                 nextToPrev = true;
             }
+            oldCurrentScreen = currentScreen;
         }else if(currentScreen == StageUIScreen.Next){
             //transition
             transitionCanvas.SetActive(true);
             if(transitionCanvas.transform.Find("Image").GetComponent <TransitionController>().getCorEndFlg()){
                 SceneManager.LoadScene("stage3-a2");
             }
-
+            oldCurrentScreen = currentScreen;
         }else if(currentScreen == StageUIScreen.GameClear){
-            GameClearUIPrefab.SetActive(true);
+            if(oldCurrentScreen!=currentScreen){
+                GameClearUIPrefab.SetActive(true);
+                oldCurrentScreen = currentScreen;
+            }
             //クリアタイムを保存
             if(scoreManager==null){
                 scoreManager = gameObject.AddComponent<ScoreManager>();
-                scoreManager.saveScore(cdt.getMinute(), cdt.getSeconds());
+                if(SceneManager.GetActiveScene().name=="Stage3-a"){
+                    scoreManager.saveScore(cdt.getMinute(), cdt.getSeconds(), "3a");
+                }else if(SceneManager.GetActiveScene().name=="Stage3-b"){
+                    scoreManager.saveScore(cdt.getMinute(), cdt.getSeconds(), "3b");
+                }
             }
             if(Input.GetButtonDown ("Submit")){
                 GameClearUIPrefab.SetActive(false);
-                SceneManager.LoadScene("Menu");
+                if(SceneManager.GetActiveScene().name=="Stage3-a"){
+                    SceneManager.LoadScene("stage3-b");
+                }else if(SceneManager.GetActiveScene().name=="Stage3-b"){
+                    SceneManager.LoadScene("Menu");
+                }
             }
 
         }else if(currentScreen == StageUIScreen.GameOver){
-            if (retryButtonFlag) {
+            if(retryButtonFlag) {
                 if (GameOverUIInstance == null) {
                     GameOverUIInstance = GameObject.Instantiate (GameOverUIPrefab) as GameObject;
                     GameOverUIPrefab.SetActive(true);
@@ -130,8 +153,36 @@ public class StageUIManager : MonoBehaviour{
             //決定ボタン押下でゲームオーバー画面削除
             if (!retryButtonFlag && Input.GetButtonDown ("Submit")){
                 retryButtonFlag = true;
+            }else if (!retryButtonFlag && Input.GetButtonDown ("Pause")){
+                Time.timeScale = 1f;
+                retryButtonFlag = true;
+                SceneManager.LoadScene("Menu");
             }
+            oldCurrentScreen = currentScreen;
+        }else if(currentScreen == StageUIScreen.Pause){
+            if(cursorNum==0 && Input.GetButtonDown ("Down")){
+                cursorWkPos = Cursor.transform.position;
+                cursorWkPos.y -= 60f;
+                Cursor.transform.position = cursorWkPos;
+                cursorNum++;
+            }else if(cursorNum==1 && Input.GetButtonDown ("Up")){
+                cursorWkPos = Cursor.transform.position;
+                cursorWkPos.y += 60f;
+                Cursor.transform.position = cursorWkPos;
+                cursorNum--;
+            }
+            if(Input.GetButtonDown ("Submit")){
+                if(cursorNum==0){
+                    pauseUIPrefab.SetActive(false);
+                    Time.timeScale = 1f;
+                    currentScreen = StageUIScreen.Game;
+                }else if(cursorNum==1){
+                    SceneManager.LoadScene("Menu");
+                    Time.timeScale = 1f;
+                }
 
+            }
+            oldCurrentScreen = currentScreen;
         }
 
 
@@ -159,20 +210,11 @@ public class StageUIManager : MonoBehaviour{
         SceneManager.LoadScene("Menu");
     }
 
-    //クリア条件に応じてゴールエリアに触れた時の挙動を変化
-    private void checkGoal(){
-        // if(true){ //ゴールルール：ゴールエリアに到達
-        //     goalFlg = true;
-        // }
-
-    }
-
-    //他スクリプトから呼び出して画面を設定する
+    //以下、他スクリプトから呼び出して画面を設定する
     public void setCurrentScreen(StageUIScreen state){
         currentScreen = state;
     }
 
-    //他スクリプトから呼び出して画面モード取得
     public StageUIScreen getCurrentScreen(){
         return currentScreen;
     }
@@ -195,6 +237,7 @@ public enum StageUIScreen{
     Previous,
     Next,
     GameClear,
-    GameOver
+    GameOver,
+    Pause
 
 }

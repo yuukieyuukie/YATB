@@ -80,15 +80,14 @@ public class ShotObject : MonoBehaviour
             //col.gameObject.GetComponent<MetalImpacts>().CallImpactEffect(gameObject.transform);
             Destroy(this.gameObject,0.5f);
             CallImpactEffect(gameObject.transform);
-		}else if(col.gameObject.tag == "Boss") {
-            col.gameObject.GetComponent<BossStatus>().TakeDamage(damage);
-			Destroy(this.gameObject);
-            CallImpactEffect(gameObject.transform);
-        }else if(col.gameObject.tag == "Breakable") {
+		}else if(col.gameObject.tag == "Breakable") {
             door.SetActive(false);
             cubeDoor.SetActive(false);
             colliderDoor.SetActive(false);
-
+        }else if(col.gameObject.tag == "Boss"){
+            col.gameObject.GetComponent<BossStatus>().TakeDamage(damage);
+			Destroy(this.gameObject);
+            CallImpactEffect(gameObject.transform);
         }
 	}
 

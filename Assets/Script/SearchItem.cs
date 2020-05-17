@@ -19,7 +19,7 @@ public class SearchItem : MonoBehaviour{
         SetCountText();
         SetSecretCountText();
         messageUI = GameObject.Find("MessageUI");
-        countDownTimer = GameObject.Find("MessageUI/HUD/Timer");
+        countDownTimer = GameObject.Find("MessageUI/HUD/TimeBox");
         message = messageUI.GetComponent<Message>();
         
     }

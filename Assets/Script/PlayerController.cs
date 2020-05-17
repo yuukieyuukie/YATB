@@ -25,8 +25,6 @@ public class PlayerController : MonoBehaviour{
     [SerializeField]
     private GameObject impulse;
     [SerializeField]
-    private GameObject impulse2;
-    [SerializeField]
     private AudioClip sound1;
     private AudioSource audioSource;
 
@@ -39,8 +37,8 @@ public class PlayerController : MonoBehaviour{
     private int dribbleTime;
     private int angle;
     private bool dribbleFlg = false;
-    private bool shot1Way, shotAllWay;
-    private int shot1WayTime, shotAllWayTime;
+    private bool shot1Way;
+    private int shot1WayTime;
 
     //敵の接近数による見た目変化
     [SerializeField]
@@ -57,9 +55,6 @@ public class PlayerController : MonoBehaviour{
     private GameObject countDownTimer;
     private GameObject hud;
     private GameObject dialoguePanel;
-    private GameObject pickupPanel;
-    private GameObject enemyNearPanel;
-    private GameObject enemyCollisionPanel;
     private GameObject messageUI;
     
     private GameObject changeSwitchState;
@@ -68,30 +63,17 @@ public class PlayerController : MonoBehaviour{
     private float moveHorizontal;
     private float moveVertical;
 
-    private List<GameObject> dribbleGauge = new List<GameObject>();
-
     private Vector3 previousPos = new Vector3(-53f,2f,69f);
-
-    private int dribbleFlameTime = 0;
-    private bool dribbleFlameTimeFlg = false;
     
     void Start(){
         rb = GetComponent<Rigidbody>();
         sceneChanger = GameObject.Find("UIManager");
-        countDownTimer = GameObject.Find("MessageUI/HUD/Timer");
+        countDownTimer = GameObject.Find("MessageUI/HUD/TimeBox");
         hud = GameObject.Find("MessageUI/HUD");
         dialoguePanel = GameObject.Find("MessageUI/DialoguePanel");
-        pickupPanel = GameObject.Find("MessageUI/PickupPanel");
-        enemyNearPanel = GameObject.Find("MessageUI/EnemyNearPanel");
-        enemyCollisionPanel = GameObject.Find("MessageUI/EnemyCollisionPanel");
         messageUI = GameObject.Find("MessageUI");
         muzzleFlash.SetActive(true);
         audioSource = GetComponent<AudioSource>();
-        for(int i=0;i<=maxDribble;i++){
-            dribbleGauge.Add(hud.transform.Find("Dribble"+(i)).gameObject);
-            if(i!=0)hud.transform.Find("Dribble"+(i)).gameObject.SetActive(false);
-        }
-        
         changeSwitchState = GameObject.Find("Switch1");
         eventCamera = GameObject.Find("Event Camera"); //exceptionを直すため
         
@@ -116,19 +98,6 @@ public class PlayerController : MonoBehaviour{
             rb.AddForce(100f*moveForward.normalized * Time.deltaTime * (speed/Mathf.Sqrt(2.0f)) + new Vector3(0, rb.velocity.y, 0));// 移動方向にスピードを掛ける。ジャンプや落下がある場合は、別途Y軸方向の速度ベクトルを足す。
         }
 
-        if(dribbleFlameTime==0 && dribbleFlameTimeFlg){
-            impulse2.SetActive(true);
-            dribbleFlameTime++;
-        }
-        else if(dribbleFlameTime!=0 && dribbleFlameTimeFlg){
-            dribbleFlameTime++;
-            if(dribbleFlameTime>60){
-                impulse2.SetActive(false);
-                dribbleFlameTimeFlg = false;
-                dribbleFlameTime = 0;
-            }
-        }
-
         if(jumpFlg && landFlg){
             rb.velocity = Vector3.up * jumpPower;
             landFlg = false;
@@ -151,10 +120,8 @@ public class PlayerController : MonoBehaviour{
         if(dribble<maxDribble){
             dribbleTime ++;
             if(dribbleTime>180){
-                changeFalseDribbleGauge(dribble);
                 dribble++;
                 dribbleTime = 0;
-                changeTrueDribbleGauge(dribble);
             }
         }
 
@@ -177,16 +144,16 @@ public class PlayerController : MonoBehaviour{
         moveHorizontal = Input.GetAxis("Horizontal");
         moveVertical = Input.GetAxis("Vertical");
 
+        //一定の速度以下でブレーキ
+        if(!jumpFlg && Input.GetAxis("Horizontal")==0f && Input.GetAxis("Vertical")==0f && rb.velocity.magnitude<2f){
+            rb.velocity = Vector3.zero;
+        }
+
         //Pause中の入力を受け付けない
         if (Mathf.Approximately(Time.timeScale, 0f)) {
             return;
         }
 
-        //ボタン押下でショット発射
-        if (!shotAllWay&&Input.GetButtonDown("Shot_4way")) {
-            // CreateShotObject(0f);
-            // shotAllWay = true;
-        }
         if (!shot1Way&&Input.GetButtonDown("Shot_1way")) {
             shot1Way = true;
         }
@@ -206,16 +173,10 @@ public class PlayerController : MonoBehaviour{
                 angle = 180;
             }
             dribbleFlg = true;
-            dribbleFlameTimeFlg = true;
-            
-            changeFalseDribbleGauge(dribble);
             dribble--;
-            changeTrueDribbleGauge(dribble);
             impulse.GetComponent<EffekseerEmitter>().Play();
 
         }
-
-        
 
         //周囲の敵の数に応じて黄、赤色に発光（白部分が光る）
         if(m_targets.Count >= 3){
@@ -226,27 +187,6 @@ public class PlayerController : MonoBehaviour{
             m_renderer.material = m_defaultMaterial;
         }
 
-        //一定時間経過で消去
-        if(shotAllWay){
-            if(shotAllWayTime>30){
-                Destroy(GameObject.Find("Shot_allway(Clone)"));
-            }
-            if(shotAllWayTime>360){
-                shotAllWayTime = 0;
-                shotAllWay = false;
-            }
-            shotAllWayTime++;
-        }
-
-
-    }
-
-    //allwayショットの生成処理
-    private void CreateShotObject(float axis){
-        GameObject shot = Instantiate(shotObject, transform.position, Quaternion.identity);
-        var shotObject4way = shot.GetComponent<ShotObject>();
-        shotObject4way.SetCharacterObject(gameObject);
-        shotObject4way.SetForward4Way(Quaternion.AngleAxis(axis, Vector3.up));
     }
 
     //1wayショットの生成処理
@@ -259,14 +199,6 @@ public class PlayerController : MonoBehaviour{
         muzzleFlash = Instantiate(muzzleFlashPrefab, transform.position, transform.rotation);
         muzzleFlash.transform.SetParent(gameObject.transform);
         muzzleFlash.transform.localScale = muzzleFlashScale;
-    }
-
-    private void changeTrueDribbleGauge(int dribble){
-        dribbleGauge[dribble].SetActive(true);
-    }
-
-    private void changeFalseDribbleGauge(int dribble){
-        dribbleGauge[dribble].SetActive(false);
     }
 
     //サーチ系メソッド
@@ -302,13 +234,12 @@ public class PlayerController : MonoBehaviour{
             suim.setCurrentScreen(StageUIScreen.Previous);
             MessageUIManager muim = messageUI.GetComponent<MessageUIManager>();
             muim.checkPlayerColType(PlayerColType.SceneChange);
-            
         }else if(col.gameObject.CompareTag("Next")){
             StageUIManager suim = sceneChanger.GetComponent<StageUIManager>();
             suim.setCurrentScreen(StageUIScreen.Next);
             MessageUIManager muim = messageUI.GetComponent<MessageUIManager>();
             muim.checkPlayerColType(PlayerColType.SceneChange);
-        }else if((col.gameObject.CompareTag("Enemy") || col.gameObject.CompareTag("Trap")) && !untouchable){
+        }else if((col.gameObject.CompareTag("Enemy") || col.gameObject.CompareTag("Trap") || col.gameObject.CompareTag("Boss") || col.gameObject.CompareTag("BossChild")) && !untouchable){
             CountDownTimer cdt = countDownTimer.GetComponent<CountDownTimer>();
             cdt.addDamageToTime(20f);
             MessageUIManager muim = messageUI.GetComponent<MessageUIManager>();
@@ -324,13 +255,24 @@ public class PlayerController : MonoBehaviour{
         }else if(col.gameObject.CompareTag("Floor")){
             jumpFlg = false;
         }else if(col.gameObject.CompareTag("Switch") && !changeSwitchState.GetComponent<ChangeSwitchState>().getSwitchState()){
-            
             ChangeSwitchState.setSwitchState(true);
+        }else if(col.gameObject.CompareTag("BossTrap")){
+            CountDownTimer cdt = countDownTimer.GetComponent<CountDownTimer>();
+            cdt.addDamageToTime(200f);
+            MessageUIManager muim = messageUI.GetComponent<MessageUIManager>();
+            muim.checkPlayerColType(PlayerColType.EnemyCol);
+            if(hud.activeSelf){
+                hud.GetComponent<ScreenShake>().Shake( 0.25f, 12.1f );
+            }
+            if(dialoguePanel.activeSelf){
+                dialoguePanel.GetComponent<ScreenShake>().Shake( 0.25f, 12.1f );
+            }
         }
-        //Debug.Log("jumpFlg: "+jumpFlg);
-        
     }
-
+    
+    public int getDribbleCount(){
+        return dribble;
+    }
 
     public bool getJumpFlg(){
         return jumpFlg;

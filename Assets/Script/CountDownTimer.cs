@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
  
 public class CountDownTimer : MonoBehaviour{
  
@@ -16,15 +17,30 @@ public class CountDownTimer : MonoBehaviour{
 	private GameObject stageUIManager;
 	private StageUIManager suim;
 
+	void OnActiveSceneChanged( Scene prevScene, Scene nextScene ){
+        Debug.Log ( prevScene.name + "->"  + nextScene.name );
+		if(nextScene.name=="Stage3-b"){
+				minute = 2;
+				seconds = 30;
+		}
+
+    }
+
 	void Start(){
+		SceneManager.activeSceneChanged += OnActiveSceneChanged;
 		oldSeconds = 0f;
 		timerText = GetComponentInChildren<Text>();
 		stageUIManager = GameObject.Find("UIManager");
 		suim = stageUIManager.GetComponent<StageUIManager>();
 		if(suim.getCurrentScreen() == StageUIScreen.Briefing){
-			minute = 1;
-			seconds = 10;
+			if(SceneManager.GetActiveScene().name=="Stage3-a"){
+				minute = 1;
+				seconds = 10;
+			}else if(SceneManager.GetActiveScene().name=="Stage3-b"){
+				
+			}
 		}
+		
 	}
  
 	void Update(){

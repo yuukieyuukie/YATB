@@ -15,11 +15,13 @@ TagManager:
   - PickUp
   - Floor
   - Switch
-  - Boss
   - Previous
   - Next
   - Secret
   - Breakable
+  - BossTrap
+  - Boss
+  - BossChild
   layers:
   - Default
   - TransparentFX
@@ -40,8 +42,8 @@ TagManager:
   - Shot
   - Camera
   - AreaMove
-  - 
-  - 
+  - Boss
+  - BossChild
   - 
   - 
   - 

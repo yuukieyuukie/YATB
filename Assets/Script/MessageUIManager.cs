@@ -1,79 +1,108 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 
 public class MessageUIManager : MonoBehaviour {
 
-    private GameObject pickupPanel;
-    private float pickupTime = 0f; //pickupPanel表示用
-    private GameObject enemyNearPanel;
-    private float enemyNearTime = 0f; //enemyCollisionPanel表示用
-    private GameObject enemyCollisionPanel;
-    private float enemyColTime = 0f; //enemyCollisionPanel表示用
-    private GameObject damagePanel;
-    private float damageTime = 0f; //damagePanel表示用
-    public float speed = 0.5f;  //透明化の速さ
-    float alfa;    //A値を操作するための変数
-    float red, green, blue;    //RGBを操作するための変数
+    private GameObject imageObtain, imageApproach, imageCrushed, imageDamage;
+    private float timeObtain = 0f, timeApproach = 0f, timeCrushed = 0f, timeDamage = 0f;
+    private float alfaObtain = 0f, alfaApproach = 0f, alfaCrushed = 0f, alfaDamage = 0f;
+    private Color colorObtain, colorApproach, colorCrushed, colorDamage;
+
+    private GameObject player;
+    private int dribbleCount, oldDribbleCount;
+    private GameObject dribbleGauge;
+    private List<GameObject> dribbleGaugeLeft = new List<GameObject>();
+    private List<GameObject> dribbleGaugeRight = new List<GameObject>();
 
     void Start(){
-        pickupPanel = GameObject.Find("PickupPanel");
-        enemyNearPanel = GameObject.Find("EnemyNearPanel");
-        enemyCollisionPanel = GameObject.Find("EnemyCollisionPanel");
-        damagePanel = GameObject.Find("DamagePanel");
+        imageObtain = GameObject.Find("ReactionPanel/ImageObtain");
+        colorObtain = imageObtain.GetComponent<Image>().color;
+        colorObtain.a = alfaObtain;
+        imageObtain.GetComponent<Image>().color = colorObtain;
+        imageApproach = GameObject.Find("ReactionPanel/ImageApproach");
+        colorApproach = imageApproach.GetComponent<Image>().color;
+        colorApproach.a = alfaApproach;
+        imageApproach.GetComponent<Image>().color = colorApproach;
+        imageCrushed = GameObject.Find("ReactionPanel/ImageCrushed");
+        colorCrushed = imageCrushed.GetComponent<Image>().color;
+        colorCrushed.a = alfaCrushed;
+        imageCrushed.GetComponent<Image>().color = colorCrushed;
+        imageDamage = GameObject.Find("ImageDamage");
+        colorDamage = imageDamage.GetComponent<Image>().color;
+        colorDamage.a = alfaDamage;
+        imageDamage.GetComponent<Image>().color = colorDamage;
 
-        pickupPanel.SetActive(false);
-        enemyNearPanel.SetActive(false);
-        enemyCollisionPanel.SetActive(false);
-        damagePanel.SetActive(false);
-
-        red = damagePanel.GetComponent<Image>().color.r;
-        green = damagePanel.GetComponent<Image>().color.g;
-        blue = damagePanel.GetComponent<Image>().color.b;
+        player = GameObject.Find("Player");
+        dribbleGauge = GameObject.Find("HUD/DribbleGauge");
+        for(int i=0;i<5;i++){
+            dribbleGaugeLeft.Add(dribbleGauge.transform.Find("Left"+(i+1)).gameObject);
+            dribbleGaugeLeft[i].SetActive(false);
+            dribbleGaugeRight.Add(dribbleGauge.transform.Find("Right"+(i+1)).gameObject);
+            dribbleGaugeRight[i].SetActive(false);
+        }
+        
     }
 
     void Update(){
         // アイテムゲットを示すパネルを表示
-        if(0f<pickupTime && pickupTime<2f){
-            pickupTime += Time.deltaTime;
-            pickupPanel.gameObject.SetActive(true);
-        }else if(pickupTime>=2f){
-            pickupTime = 0;
-            pickupPanel.gameObject.SetActive(false);
+        if(0f<timeObtain && timeObtain<2f){
+            timeObtain += Time.deltaTime;
+        }else if(timeObtain>=2f){
+            if(alfaObtain<=0f){
+                timeObtain = 0f;
+            }
+            colorObtain.a = alfaObtain;
+            imageObtain.GetComponent<Image>().color = colorObtain;
+            alfaObtain -= Time.deltaTime;
         }        
         // 敵の接近を示すパネルを表示
-        if(0f<enemyNearTime && enemyNearTime<2f){
-            enemyNearTime += Time.deltaTime;
-            enemyNearPanel.SetActive(true);
-        }else if(enemyNearTime>=2f){
-            enemyNearTime = 0;
-            enemyNearPanel.SetActive(false);
+        if(0f<timeApproach && timeApproach<2f){
+            timeApproach += Time.deltaTime;
+        }else if(timeApproach>=2f){
+            if(alfaApproach<=0f){
+                timeApproach = 0f;
+            }
+            colorApproach.a = alfaApproach;
+            imageApproach.GetComponent<Image>().color = colorApproach;
+            alfaApproach -= Time.deltaTime;
         }
-        // ダメージを示すパネルを表示
-        if(0f<enemyColTime && enemyColTime<2f){
-            enemyColTime += Time.deltaTime;
-            enemyCollisionPanel.SetActive(true);
-        }else if(enemyColTime>=2f){
-            enemyColTime = 0;
-            enemyCollisionPanel.SetActive(false);
+        // 衝突を示すパネルを表示
+        if(0f<timeCrushed && timeCrushed<2f){
+            timeCrushed += Time.deltaTime;
+        }else if(timeCrushed>=2f){
+            if(alfaCrushed<=0f){
+                timeCrushed = 0f;
+            }
+            colorCrushed.a = alfaCrushed;
+            imageCrushed.GetComponent<Image>().color = colorCrushed;
+            alfaCrushed -= Time.deltaTime;
         }
-
-        if(0f<damageTime && damageTime<0.25f){
-            damageTime += Time.deltaTime;
-            damagePanel.SetActive(true);
-            damagePanel.GetComponent<Image>().color = new Color(red, green, blue, alfa);
-            alfa += speed;
-        }else if(0.25f<=damageTime && damageTime<0.5f){
-            damageTime += Time.deltaTime;
-            damagePanel.SetActive(true);
-            damagePanel.GetComponent<Image>().color = new Color(red, green, blue, alfa);
-            alfa -= speed;
-        }else if(damageTime>=0.5f){
-            damageTime = 0;
-            damagePanel.SetActive(false);
+        // ダメージを示す効果を表示
+        if(0f<timeDamage && timeDamage<0.25f){
+            timeDamage += Time.deltaTime;
+            colorDamage.a = alfaDamage;
+            imageDamage.GetComponent<Image>().color = colorDamage;
+            alfaDamage += Time.deltaTime*0.5f;
+        }else if(0.25f<=timeDamage && timeDamage<0.5f){
+            timeDamage += Time.deltaTime;
+            colorDamage.a = alfaDamage;
+            imageDamage.GetComponent<Image>().color = colorDamage;
+            alfaDamage -= Time.deltaTime*0.5f;
+        }else if(timeDamage>=0.5f){
+            timeDamage = 0;
         }
         
-
+        oldDribbleCount = dribbleCount;
+        dribbleCount = player.GetComponent<PlayerController>().getDribbleCount();
+        if(oldDribbleCount < dribbleCount){ // ゲージが増えた
+            dribbleGaugeLeft[dribbleCount-1].SetActive(true);
+            dribbleGaugeRight[dribbleCount-1].SetActive(true);
+        }else if(oldDribbleCount > dribbleCount){ // ゲージが減った
+            dribbleGaugeLeft[oldDribbleCount-1].SetActive(false);
+            dribbleGaugeRight[oldDribbleCount-1].SetActive(false);
+        }
 
 
     }
@@ -82,12 +111,21 @@ public class MessageUIManager : MonoBehaviour {
     //プレイヤーが衝突したオブジェクト種類に対し処理を行う
     public void checkPlayerColType(PlayerColType colType){
         if(colType==PlayerColType.Pickup){
-            pickupTime += Time.deltaTime;
+            timeObtain += Time.deltaTime;
+            alfaObtain = 1f;
+            colorObtain.a = alfaObtain;
+            imageObtain.GetComponent<Image>().color = colorObtain;
         }else if(colType==PlayerColType.EnemyNear){
-            enemyNearTime += Time.deltaTime;
+            timeApproach += Time.deltaTime;
+            alfaApproach = 1f;
+            colorApproach.a = alfaApproach;
+            imageApproach.GetComponent<Image>().color = colorApproach;
         }else if(colType==PlayerColType.EnemyCol){
-            enemyColTime += Time.deltaTime;
-            damageTime += Time.deltaTime;
+            timeCrushed += Time.deltaTime;
+            alfaCrushed = 1f;
+            colorCrushed.a = alfaCrushed;
+            imageCrushed.GetComponent<Image>().color = colorCrushed;
+            timeDamage += Time.deltaTime;
         }else if(colType==PlayerColType.SceneChange){
             
         }else{

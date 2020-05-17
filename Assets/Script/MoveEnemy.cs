@@ -23,19 +23,39 @@ namespace StateMachineSample{
         //private float turretRotationSmooth = 0.8f;
         //private float attackInterval = 2f;
         private float pursuitSpeed = 8f;
-        private float attackSpeed = 12f;
+        private float attackSpeed = 14f;
 
-        private float pursuitSqrDistance = 400f;
-        private float attackSqrDistance = 100f;
+        private float pursuitSqrDistance = 700f;
+        private float attackSqrDistance = 400f;
         private float margin = 50f;
 
         private float changeTargetSqrDistance = 1000f;
 
         private Rigidbody rb;
         private GameObject prefabManager;
+        
+        [SerializeField]
+        private GameObject flameEffect;
+        private int dribbleFlameTime = 0;
+        private bool dribbleFlameTimeFlg = false;
 
         private void Start(){
             Initialize();
+        }
+
+        private void FixedUpdate(){
+            if(dribbleFlameTime==0 && dribbleFlameTimeFlg){
+                flameEffect.SetActive(true);
+                dribbleFlameTime++;
+            }
+            else if(dribbleFlameTime!=0 && dribbleFlameTimeFlg){
+                dribbleFlameTime++;
+                if(dribbleFlameTime>90){
+                    flameEffect.SetActive(false);
+                    dribbleFlameTimeFlg = false;
+                    dribbleFlameTime = 0;
+                }
+            }
         }
 
         public void Initialize(){
@@ -118,7 +138,8 @@ namespace StateMachineSample{
             public override void Execute(){
                 // プレイヤーとの距離が小さければ、攻撃ステートに遷移
                 float sqrDistanceToPlayer = Vector3.SqrMagnitude(owner.transform.position - owner.player.position);
-                if (sqrDistanceToPlayer < owner.attackSqrDistance - owner.margin){ 
+                if (sqrDistanceToPlayer < owner.attackSqrDistance - owner.margin){
+                    owner.dribbleFlameTimeFlg = true; //条件：敵種Toroll
                     Debug.Log("Change -> Attack");
                     owner.ChangeState(EnemyState.Attack);
                 }
