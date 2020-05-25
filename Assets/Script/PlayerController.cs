@@ -6,16 +6,11 @@ using UnityEngine.SceneManagement;
 using Effekseer;
 
 public class PlayerController : MonoBehaviour{
-    [SerializeField]
-    private float speed; // 動く速さ
-    [SerializeField]
-    private float maxSpeed;
-    [SerializeField]
-    private float jumpPower;
-    private bool jumpFlg;
-    private bool landFlg;
+    private float speed = 10f; // 動く速さ
+    private float maxSpeed = 15f;
+    private float jumpPower = 10f;
+    private bool jumpFlg, landFlg;
     private Rigidbody rb; // Rididbody
-    public GameObject shotObject;
     public GameObject shotObject2;
     public GameObject muzzle;
     public GameObject muzzleFlash;
@@ -25,33 +20,24 @@ public class PlayerController : MonoBehaviour{
     [SerializeField]
     private GameObject impulse;
     [SerializeField]
-    private AudioClip sound1;
-    private AudioSource audioSource;
+    private AudioClip shotAudio;
+    private AudioSource shotAudioSource;
+    [SerializeField]
+    private AudioClip damageAudio;
+    private AudioSource damageAudioSource;
 
     private bool untouchable;
     private int untouchableTime;
     private int dribble;
     private int maxDribble = 5;
-    [SerializeField]
-    private float dribbleBoost;
+    private float dribbleBoost = 25f;
     private int dribbleTime;
     private int angle;
     private bool dribbleFlg = false;
     private bool shot1Way;
     private int shot1WayTime;
 
-    //敵の接近数による見た目変化
-    [SerializeField]
-    private Material    m_defaultMaterial   = null;
-    [SerializeField]
-    private Material    m_foundMaterial     = null;
-    [SerializeField]
-    private Material    m_manyFoundMaterial     = null;
-
-    private Renderer            m_renderer  = null;
-    private List<GameObject>    m_targets   = new List<GameObject>();
-
-    private GameObject sceneChanger; //他オブジェクトのコンポーネントを取り込む
+    private GameObject uiManager; //他オブジェクトのコンポーネントを取り込む
     private GameObject countDownTimer;
     private GameObject hud;
     private GameObject dialoguePanel;
@@ -63,21 +49,29 @@ public class PlayerController : MonoBehaviour{
     private float moveHorizontal;
     private float moveVertical;
 
-    private Vector3 previousPos = new Vector3(-53f,2f,69f);
+    private Vector3 previousPos = new Vector3(-51f,1.1f,69f);
+
+    private GameObject playerSpark;
+    private bool sparkFlg;
     
+    StageUIManager suim;
+
     void Start(){
         rb = GetComponent<Rigidbody>();
-        sceneChanger = GameObject.Find("UIManager");
+        
         countDownTimer = GameObject.Find("MessageUI/HUD/TimeBox");
         hud = GameObject.Find("MessageUI/HUD");
         dialoguePanel = GameObject.Find("MessageUI/DialoguePanel");
         messageUI = GameObject.Find("MessageUI");
         muzzleFlash.SetActive(true);
-        audioSource = GetComponent<AudioSource>();
+        shotAudioSource = GetComponent<AudioSource>();
+        damageAudioSource = GetComponent<AudioSource>();
         changeSwitchState = GameObject.Find("Switch1");
         eventCamera = GameObject.Find("Event Camera"); //exceptionを直すため
+        playerSpark = GameObject.Find("PlayerSpark");
         
-        StageUIManager suim = sceneChanger.GetComponent<StageUIManager>();
+        uiManager = GameObject.Find("UIManager");
+        suim = uiManager.GetComponent<StageUIManager>();
         
         if(suim.getNextPrevFlg()){
             this.gameObject.transform.position = previousPos;
@@ -85,14 +79,12 @@ public class PlayerController : MonoBehaviour{
         }
         
     }
-
+ 
     //rbはFixedで処理
     void FixedUpdate(){
 
         Vector3 cameraForward = Vector3.zero;
-        //if(!changeCamera.GetComponent<ChangeCamera>().getEventCameraFlg()){
-            cameraForward = Vector3.Scale(Camera.main.transform.forward, new Vector3(1, 0, 1)).normalized;// カメラの方向から、X-Z平面の単位ベクトルを取得
-        //}
+        cameraForward = Vector3.Scale(Camera.main.transform.forward, new Vector3(1, 0, 1)).normalized;// カメラの方向から、X-Z平面の単位ベクトルを取得
         Vector3 moveForward = cameraForward * moveVertical + Camera.main.transform.right * moveHorizontal;// 方向キーの入力値とカメラの向きから、移動方向を決定
         if(rb.velocity.magnitude < maxSpeed){
             rb.AddForce(100f*moveForward.normalized * Time.deltaTime * (speed/Mathf.Sqrt(2.0f)) + new Vector3(0, rb.velocity.y, 0));// 移動方向にスピードを掛ける。ジャンプや落下がある場合は、別途Y軸方向の速度ベクトルを足す。
@@ -129,7 +121,7 @@ public class PlayerController : MonoBehaviour{
         if(shot1Way){
             if(shot1WayTime%15==0 && shot1WayTime<=30){
                 CreateShotObject2(muzzle.transform.forward);
-                audioSource.PlayOneShot(sound1);
+                shotAudioSource.PlayOneShot(shotAudio);
             }
             shot1WayTime++;
 
@@ -144,20 +136,25 @@ public class PlayerController : MonoBehaviour{
         moveHorizontal = Input.GetAxis("Horizontal");
         moveVertical = Input.GetAxis("Vertical");
 
-        //一定の速度以下でブレーキ
-        if(!jumpFlg && Input.GetAxis("Horizontal")==0f && Input.GetAxis("Vertical")==0f && rb.velocity.magnitude<2f){
-            rb.velocity = Vector3.zero;
-        }
-
         //Pause中の入力を受け付けない
         if (Mathf.Approximately(Time.timeScale, 0f)) {
             return;
         }
 
+        //移動キーを押してない時は減速
+        if(!jumpFlg && moveHorizontal==0f && moveVertical==0f){
+            if(rb.velocity.magnitude>2f){
+                rb.AddForce(-150f*rb.velocity*Time.deltaTime);
+            }
+            else if(rb.velocity.magnitude<2f){
+                rb.velocity = Vector3.zero;
+            }
+        }
+
         if (!shot1Way&&Input.GetButtonDown("Shot_1way")) {
             shot1Way = true;
         }
-        //ボタン押下で移動系発動
+
         if (!jumpFlg && Input.GetButtonDown("Jump")) {
             jumpFlg = true;
             landFlg = true;
@@ -175,16 +172,18 @@ public class PlayerController : MonoBehaviour{
             dribbleFlg = true;
             dribble--;
             impulse.GetComponent<EffekseerEmitter>().Play();
-
+            untouchable = true;
+            untouchableTime = 0;
         }
 
-        //周囲の敵の数に応じて黄、赤色に発光（白部分が光る）
-        if(m_targets.Count >= 3){
-            m_renderer.material = m_manyFoundMaterial;
-        }else if(m_targets.Count > 0){
-            m_renderer.material = m_foundMaterial;
-        }else{
-            m_renderer.material = m_defaultMaterial;
+        if(sparkFlg){
+            playerSpark.transform.position = this.transform.position;
+        }
+        if(!sparkFlg && playerSpark.activeSelf){
+            playerSpark.SetActive(false);
+        }
+        if(sparkFlg && !playerSpark.activeSelf){
+            playerSpark.SetActive(true);
         }
 
     }
@@ -201,64 +200,32 @@ public class PlayerController : MonoBehaviour{
         muzzleFlash.transform.localScale = muzzleFlashScale;
     }
 
-    //サーチ系メソッド
-    private void Awake(){
-        m_renderer  = GetComponentInChildren<Renderer>();
-
-        var searching   = GetComponentInChildren<SearchingBehavior>();
-        searching.onFound   += OnFound;
-        searching.onLost    += OnLost;
-        searching.onStay   += OnStay;
-    }
-
-    private void OnFound( GameObject i_foundObject ){
-        m_targets.Add( i_foundObject );
-    }
-
-    private void OnLost( GameObject i_lostObject ){
-        m_targets.Remove( i_lostObject );
-    }
-
-    private void OnStay( GameObject[] enemys ){
-
-        //Debug.Log("length:"+enemys.Length);
-    }
-
     //タグ付オブジェクトに触れたときの処理
     void OnCollisionEnter(Collision col){
         if(col.gameObject.CompareTag("Goal")){
-            StageUIManager suim = sceneChanger.GetComponent<StageUIManager>();
             suim.setCurrentScreen(StageUIScreen.GameClear);
         }else if(col.gameObject.CompareTag("Previous")){
-            StageUIManager suim = sceneChanger.GetComponent<StageUIManager>();
             suim.setCurrentScreen(StageUIScreen.Previous);
-            MessageUIManager muim = messageUI.GetComponent<MessageUIManager>();
-            muim.checkPlayerColType(PlayerColType.SceneChange);
         }else if(col.gameObject.CompareTag("Next")){
-            StageUIManager suim = sceneChanger.GetComponent<StageUIManager>();
             suim.setCurrentScreen(StageUIScreen.Next);
-            MessageUIManager muim = messageUI.GetComponent<MessageUIManager>();
-            muim.checkPlayerColType(PlayerColType.SceneChange);
         }else if((col.gameObject.CompareTag("Enemy") || col.gameObject.CompareTag("Trap") || col.gameObject.CompareTag("Boss") || col.gameObject.CompareTag("BossChild")) && !untouchable){
-            CountDownTimer cdt = countDownTimer.GetComponent<CountDownTimer>();
-            cdt.addDamageToTime(20f);
+            damageAudioSource.PlayOneShot(damageAudio);
             MessageUIManager muim = messageUI.GetComponent<MessageUIManager>();
             muim.checkPlayerColType(PlayerColType.EnemyCol);
-            untouchable=true;
+            untouchable = true;
             if(hud.activeSelf){
                 hud.GetComponent<ScreenShake>().Shake( 0.25f, 12.1f );
             }
             if(dialoguePanel.activeSelf){
                 dialoguePanel.GetComponent<ScreenShake>().Shake( 0.25f, 12.1f );
             }
+            sparkFlg = true;
 
         }else if(col.gameObject.CompareTag("Floor")){
             jumpFlg = false;
         }else if(col.gameObject.CompareTag("Switch") && !changeSwitchState.GetComponent<ChangeSwitchState>().getSwitchState()){
             ChangeSwitchState.setSwitchState(true);
         }else if(col.gameObject.CompareTag("BossTrap")){
-            CountDownTimer cdt = countDownTimer.GetComponent<CountDownTimer>();
-            cdt.addDamageToTime(200f);
             MessageUIManager muim = messageUI.GetComponent<MessageUIManager>();
             muim.checkPlayerColType(PlayerColType.EnemyCol);
             if(hud.activeSelf){
@@ -280,6 +247,10 @@ public class PlayerController : MonoBehaviour{
 
     public float getBallMagnitude(){
         return rb.velocity.magnitude;
+    }
+
+    public void setSparkFlg(bool a){
+        sparkFlg = a; 
     }
 
 }

@@ -8,19 +8,32 @@ public class SearchItem : MonoBehaviour{
     public Text scoreText; // スコアの UI
     static private int score = 0; // スコア    
     public Text secretText;
-    static private int secretScore = 0;  
+    static private int secretScore = 0;
     private GameObject messageUI;
+    private MessageUIManager muim;
+
+    // private GameObject stageUI;
+    // private StageUIManager suim;
 
     private GameObject countDownTimer; //Pickup取得時タイム加算
 
     private Message message;
 
+    private GameObject player;
+    private PlayerController playerController;
+
     void Start(){
         SetCountText();
         SetSecretCountText();
         messageUI = GameObject.Find("MessageUI");
-        countDownTimer = GameObject.Find("MessageUI/HUD/TimeBox");
+        muim = messageUI.GetComponent<MessageUIManager>();
+        // stageUI = GameObject.Find("UIManager");
+        // suim = stageUI.GetComponent<StageUIManager>();
         message = messageUI.GetComponent<Message>();
+        countDownTimer = GameObject.Find("MessageUI/HUD/TimeBox");
+        
+        player = GameObject.Find("Player");
+        playerController = player.GetComponent<PlayerController>();
         
     }
 
@@ -35,17 +48,17 @@ public class SearchItem : MonoBehaviour{
             col.gameObject.SetActive(false);
             score = score + 1;
             SetCountText ();
-            MessageUIManager muim = messageUI.GetComponent<MessageUIManager>();
             muim.checkPlayerColType(PlayerColType.Pickup);
-            CountDownTimer cdt = countDownTimer.GetComponent<CountDownTimer>();
-            cdt.addDamageToTime(-20f);
+            playerController.setSparkFlg(false);
         }else if(col.gameObject.CompareTag("Dialogue")){
             col.gameObject.SetActive(false);
             message.setNextMessage();
         }else if(col.gameObject.CompareTag("Secret")){
             col.gameObject.SetActive(false);
             secretScore = secretScore + 1;
+            muim.checkPlayerColType(PlayerColType.Secret);
             SetSecretCountText ();
+            muim.setSecretFlg(true, col.gameObject.name);
         }
     }
 

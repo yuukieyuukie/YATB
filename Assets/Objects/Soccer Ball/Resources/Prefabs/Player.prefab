@@ -143,25 +143,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d0b86f313a98394fb8d5aa7710d8b68, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 10
-  maxSpeed: 15
-  jumpPower: 10
-  shotObject: {fileID: 1551744355202933957, guid: be7ac78c2cf6de24b826b94fb06cba17,
-    type: 3}
   shotObject2: {fileID: 5601847896115743032, guid: 30e4b20c37a36a24aa9f92c6aa57628e,
     type: 3}
   muzzle: {fileID: 1853176184519552874}
   muzzleFlash: {fileID: 3575666771308418508}
   muzzleFlashPrefab: {fileID: 1743301284569550, guid: ad2ab49d0a2a17148bd51c93d977bdbc,
     type: 3}
-  direction: {fileID: 0}
   muzzleFlashScale: {x: 0.3, y: 0.3, z: 0.3}
   impulse: {fileID: 7675684893833362411}
-  sound1: {fileID: 8300000, guid: d384245585817fa4ebe18b00f5f59c6e, type: 3}
-  dribbleBoost: 25
-  m_defaultMaterial: {fileID: 2100000, guid: cff0f8a4e9c85a045be6d610d20b87b3, type: 2}
-  m_foundMaterial: {fileID: 2100000, guid: f72aa466e5d586443aef3e07ea55c703, type: 2}
-  m_manyFoundMaterial: {fileID: 2100000, guid: 1b00e552ec37a1d498dfe7f35f31f3e2, type: 2}
+  shotAudio: {fileID: 8300000, guid: d384245585817fa4ebe18b00f5f59c6e, type: 3}
+  damageAudio: {fileID: 8300000, guid: 74dd2c570b22f7b4b9f8fd227813cbd7, type: 3}
 --- !u!114 &4661794015409316364
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -191,7 +182,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.4
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -366,7 +357,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isLockOn: 0
-  search: {fileID: 1853176185154982473}
+  searchEnemy: {fileID: 0}
 --- !u!1 &1853176184616739154
 GameObject:
   m_ObjectHideFlags: 0

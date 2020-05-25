@@ -13,7 +13,7 @@ public class ChangeCamera : MonoBehaviour {
 	[SerializeField]
     private GameObject eventCamera;
 	private bool eventFlg;
-	private int eventTime;
+	private float eventTime;
 
 	void Start(){
 		eventTime = 0;
@@ -31,18 +31,15 @@ public class ChangeCamera : MonoBehaviour {
 				otherCamera.SetActive(false);
 				eventCamera.SetActive(true);
 			}
-			eventTime++;
+			eventTime += Time.deltaTime;
 		}
-
-	}
-
-	void FixedUpdate(){
-		if(eventTime>210){
+		if(eventTime>3.5f){
 			eventCamera.SetActive(false);
 			mainCamera.SetActive(true);
 			setEventCameraFlg(false);
-			eventTime = 0;
+			eventTime = 0f;
 		}
+
 	}
 
     public bool isMainCamera(){

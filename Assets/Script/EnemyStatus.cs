@@ -24,7 +24,7 @@ public class EnemyStatus : MonoBehaviour{
     void Update(){
         if(isLife && life<=0) {
             isLife = false;
-            gameObject.GetComponent<MoveEnemy>().TakeDamage();
+            gameObject.GetComponent<MoveEnemy>().changeStateExplode();
         }
     }
 

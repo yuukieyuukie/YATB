@@ -18,7 +18,6 @@ public class Message : MonoBehaviour {
 	}
 	private List<hoge> messageAll = new List<hoge>();
 	private List<string> messageNow = new List<string>();
-	private GameObject player;
 
 	private List<float> nextTimerNow = new List<float>(); //1表示ごとのテキストの止める時間
 	private float restTimer;
@@ -39,7 +38,6 @@ public class Message : MonoBehaviour {
 
 		TextGauge = GameObject.Find("DialoguePanel/TextGauge").GetComponent<RectTransform>(); //GameObjectから親要素を取得
 		bar = TextGauge.transform.Find("bar").GetComponent <Slider>(); //transformで子要素を取得
-		player = GameObject.Find("Player");
 
 		if(scoreManager==null){
 			scoreManager = gameObject.AddComponent<ScoreManager>();
@@ -47,47 +45,45 @@ public class Message : MonoBehaviour {
 
 		switch(SceneManager.GetActiveScene().name){
 			case "Prologue":
-				SetMessage("25XX年、日本、某地方都市。世間は高齢化の反動を受け人口の著しい減少に見舞われていた。\n＠"
-					+ "舞台となるこの地方都市では労働人口が減り、文化そのものが消滅する危機に直面した。\n＠"
-					+ "そこで政府は学問・技術・スポーツなどを存続させるため”親機”(しんき)と呼ばれる機械化した道具を投入した。\n＠"
-					+ "”親機”とは、減少した将来を担う若者たちに代わる、指導プログラムが施された機械を指す。\n＠"
-					+ "経験豊富な上位者の存在が欠かせなく、かつ文化形成に不可欠な学力・体力・倫理の分野の成長を促進すべく、これらに関わる道具自体が機械化された。\n＠"
-					+ "こうしてボールをはじめとする旧来の道具は瞬く間に廃棄され、この地方都市では”親機”化したボールが量産されるようになった。\n"
-				);
+				// SetMessage("25XX年、日本、某地方都市。世間は高齢化の反動を受け人口の著しい減少に見舞われていた。\n＠"
+				// 	+ "舞台となるこの地方都市では労働人口が減り、文化そのものが消滅する危機に直面した。\n＠"
+				// 	+ "そこで政府は学問・技術・スポーツなどを存続させるため”親機”(しんき)と呼ばれる機械化した道具を投入した。\n＠"
+				// 	+ "”親機”とは、減少した将来を担う若者たちに代わる、指導プログラムが施された機械を指す。\n＠"
+				// 	+ "経験豊富な上位者の存在が欠かせなく、かつ文化形成に不可欠な学力・体力・倫理の分野の成長を促進すべく、これらに関わる道具自体が機械化された。\n＠"
+				// 	+ "こうしてボールをはじめとする旧来の道具は瞬く間に廃棄され、この地方都市では”親機”化したボールが量産されるようになった。\n"
+				// );
 				break;
 			case "Stage1":
-
-
 				break;
 			case "ScenarioScene1":
-				SetMessage("街の生き残りA「ボールがこっちに向かって飛んできやがる・・・やべえよやべえよ逃げよ」\n＠"
-					+ "ノベレ「ん、あっちで何か逃げてますよ。追いかけて話を聞いてみましょうか。」\n＠"
-					+ "ノベレ「どうかなさったんですか。」\n＠"
-					+ "街の生き残りB「この建物の中は危ないボールだらけだ、気をつけろ」\n＠"
-					+ "ノベレ「面白そうですね。イレボン、やっちまいましょう。」\n"
-				);
+				// SetMessage("街の生き残りA「ボールがこっちに向かって飛んできやがる・・・やべえよやべえよ逃げよ」\n＠"
+				// 	+ "ノベレ「ん、あっちで何か逃げてますよ。追いかけて話を聞いてみましょうか。」\n＠"
+				// 	+ "ノベレ「どうかなさったんですか。」\n＠"
+				// 	+ "街の生き残りB「この建物の中は危ないボールだらけだ、気をつけろ」\n＠"
+				// 	+ "ノベレ「面白そうですね。イレボン、やっちまいましょう。」\n"
+				// );
 				break;
 			case "Stage2":
-				SetMessage("ノベレ「もうStage2ですよお兄さん。」\n＠"
-					+ "ノベレ「強いっすね皆さん。」\n"
-				);
+				// SetMessage("ノベレ「もうStage2ですよお兄さん。」\n＠"
+				// 	+ "ノベレ「強いっすね皆さん。」\n"
+				// );
 				break;
 			case "ScenarioScene2":
-				SetMessage("街の生き残りA「！」\n＠"
-					+ "ノベレ「ん、あっちで何か逃げてますよ。追いかけて話を聞いてみましょうか。」\n＠"
-					+ "ノベレ「どうかなさったんですか。」\n＠"
-					+ "街の生き残りB「この建物の中は危ないボールだらけだ、気をつけろ」\n＠"
-					+ "ノベレ「面白そうですね。イレボン、やっちまいましょう。」\n"
-				);
+				// SetMessage("街の生き残りA「！」\n＠"
+				// 	+ "ノベレ「ん、あっちで何か逃げてますよ。追いかけて話を聞いてみましょうか。」\n＠"
+				// 	+ "ノベレ「どうかなさったんですか。」\n＠"
+				// 	+ "街の生き残りB「この建物の中は危ないボールだらけだ、気をつけろ」\n＠"
+				// 	+ "ノベレ「面白そうですね。イレボン、やっちまいましょう。」\n"
+				// );
 				break;
 			case "Stage3-a":
 				dai_i = 0;
 				if(scoreManager.getLanguage()==0){	
-					SetMessage2("ここは何に使われた場所でしょうかね。", 0);
-					SetMessage2("コンテナだらけでサビ臭いと言いますか。", 0);
-					SetMessage2("敵機も多そうです。慎重に進んでくださいね。", 0);
-					SetMessage2("さっそく敵機がうろついてますね。", 1);
-					SetMessage2("さっさとやっつけて向こうに見える階段に向かいましょう。", 1);
+					SetMessage2("ここは何に使われた場所でしょうか", 0);
+					SetMessage2("コンテナだらけでサビ臭いです", 0);
+					SetMessage2("敵機も多そうです。慎重に進んでください", 0);
+					SetMessage2("さっそく敵機がうろついてますね", 1);
+					SetMessage2("さっさと倒して向こうに見える階段に向かいましょう", 1);
 				}else if(scoreManager.getLanguage()==1){
 					SetMessage2("I wonder what this place was used for.", 0);
 					SetMessage2("It's full of containers and it smells rusty.", 0);
@@ -99,10 +95,10 @@ public class Message : MonoBehaviour {
 			case "Stage3-a2":
 				dai_i = 2;
 				if(scoreManager.getLanguage()==0){
-					SetMessage2("周囲に敵機はいなさそうです。", 2);
-					SetMessage2("ただ、地形が少々複雑なようです。迷わないようお気をつけて。", 2);
+					SetMessage2("周囲に敵機はいなさそうです", 2);
+					SetMessage2("ただ地形が少々複雑なようです。迷わないようお気をつけて", 2);
 					SetMessage2("イレボン、左の窓の奥の方に怪しげなスイッチがありますよ！", 3);
-					SetMessage2("アレを押せば１階のフェンスが動きそうですがこちらからは入れないようです。", 3);
+					SetMessage2("アレを押せば１階のフェンスが動きそうですがこちらからは入れないようです", 3);
 				}else if(scoreManager.getLanguage()==1){
 					SetMessage2("There seems to be no enemies around.", 2);
 					SetMessage2("However, the terrain seems to be a bit complicated. Be careful not to get lost.", 2);
@@ -113,20 +109,22 @@ public class Message : MonoBehaviour {
 			case "Stage3-b":
 				dai_i = 0;
 				if(scoreManager.getLanguage()==0){	
-					SetMessage2("敵機に改造されたビリヤードのようです。", 0);
+					SetMessage2("敵機に改造されたビリヤードのようです", 0);
 					SetMessage2("ショットも効くと思いますが、このエリアには他にも有効な攻撃手段がありそうですよ！", 0);
+					SetMessage2("相手の動きを利用したり、突き飛ばしたりするといいと思います！", 0);
 				}else if(scoreManager.getLanguage()==1){	
 					SetMessage2("It's like a modified billiard.", 0);
 					SetMessage2("I'm sure the shots will do the trick, but I think there are other effective offensive measures in this area!", 0);
+					SetMessage2("It would be nice if he could take advantage of his opponent's moves and shove them!", 0);
 				}
 				break;
 			case "BadEnd":
-				SetMessage("ノベレ「壊れちゃった。悲しい。」\n"
-				);
+				// SetMessage("ノベレ「壊れちゃった。悲しい。」\n"
+				// );
 				break;
 			case "GoodEnd":
-				SetMessage("こうして人類は救われました。\n"
-				);
+				// SetMessage("こうして人類は救われました。\n"
+				// );
 				break;
 		}
 
@@ -167,16 +165,16 @@ public class Message : MonoBehaviour {
 			}
 		
 		}else{
-			transform.GetChild (0).gameObject.SetActive (false);
+			transform.GetChild(0).gameObject.SetActive(false);
 			messageNow.Clear();
 			nextTimerNow.Clear();
 		}
 
 	}
 
-	private void SetMessage(string message){ //3-a以外(old)
-		this.message = message;
-	}
+	// private void SetMessage(string message){ //3-a以外(old)
+	// 	this.message = message;
+	// }
 
 	private void SetMessage2(string message, int number){
 		this.messageAll.Add(new hoge { dialogue=message, nextTimer=message.Length*1.0f, num=number });
@@ -192,7 +190,7 @@ public class Message : MonoBehaviour {
 				nextTimerNow.Add(messageAll[i].nextTimer);
 			}
 		}
-		transform.GetChild (0).gameObject.SetActive (true);
+		transform.GetChild(0).gameObject.SetActive(true);
 	}
 
 	public bool getIsEnd(){

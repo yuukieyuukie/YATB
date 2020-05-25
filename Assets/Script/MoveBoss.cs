@@ -18,6 +18,7 @@ namespace StateMachineSample{
         private GameObject sceneChanger; //他オブジェクトのコンポーネントを取り込む
         private Transform player;
         private Rigidbody rbBoss, rbChild1, rbChild2, rbChild3;
+        private Vector3 localGravity;
         private GameObject releasePoint,releasePoint1,releasePoint2,releasePoint3,releasePoint4;
         private GameObject ballChild1;
         private GameObject ballChild2;
@@ -50,6 +51,7 @@ namespace StateMachineSample{
 
             stateMachine = new StateMachine<MoveBoss>();
             rbBoss = GetComponent<Rigidbody>();
+            localGravity = new Vector3(0f, -10f, 0f);
             sceneChanger = GameObject.Find("UIManager");
             releasePoint1 = GameObject.Find("ReleasePoint1");
             releasePoint2 = GameObject.Find("ReleasePoint2");
@@ -68,7 +70,7 @@ namespace StateMachineSample{
             ChangeState(BossState.Wander);
         }
 
-        public void TakeDamage(){
+        public void changeStateExplode(){
             ChangeState(BossState.Explode);
         }
 
@@ -295,13 +297,14 @@ namespace StateMachineSample{
 
             public override void Enter(){
                 moveDistance = 0f;
-                moveMaxDistance = Random.Range( 4.0f, 5.0f );
+                moveMaxDistance = Random.Range( 5.0f, 6.0f );
                 owner.rbBoss.useGravity = true;
                 // float distance = Vector3.Distance(owner.transform.position, owner.wkPlayerPos); 距離はこれでとれる
             }
             
             public override void Execute(){
-
+                owner.rbBoss.AddForce (owner.localGravity, ForceMode.Acceleration); //穴に落としやすくする
+                
                 if(moveDistance==0f){
                     owner.transform.LookAt(owner.player.position);
                     owner.rbBoss.velocity = owner.transform.forward * owner.speedTackle;
@@ -382,6 +385,10 @@ namespace StateMachineSample{
                 Debug.Log("撃破！");
                 StageUIManager suim = owner.sceneChanger.GetComponent<StageUIManager>();
                 suim.setCurrentScreen(StageUIScreen.GameClear);
+                owner.rbBoss.useGravity = true;
+                owner.rbChild1.useGravity = true;
+                owner.rbChild2.useGravity = true;
+                owner.rbChild3.useGravity = true;
             }
             
             public override void Execute(){

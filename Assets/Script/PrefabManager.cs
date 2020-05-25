@@ -6,7 +6,6 @@ using UnityEngine.SceneManagement;
 public class PrefabManager : MonoBehaviour{
 
 	Vector3[] pickupPosStage3;
-	Vector3[] kirehashiPosStage3;
 	Vector3[] enemyPosStage3;
 	
 	List<GameObject> enemy_obj = new List<GameObject>();
@@ -19,17 +18,14 @@ public class PrefabManager : MonoBehaviour{
         string hpPrefabPath = "Prefabs/HPUI2";
 		string pickupPrefabPath = "Prefabs/PickUp";
 		string cursorPrefabPath = "Prefabs/Cursor";
-		string kirehashiPrefabPath = "Prefabs/Kirehashi";
 		
 		//配置するオブジェクトの大きさを設定
 		Vector3 ballScale = new Vector3 (8f, 8f, 8f);
         Vector3 hpScale = new Vector3 (0.045f, 0.045f, 0.045f);
 		Vector3 pickupScale = new Vector3 (1.5f, 1.5f, 1.5f);
 		Vector3 cursorScale = new Vector3 (0.1f, 1f, 1f);
-		Vector3 kirehashiScale = new Vector3 (1f, 0.1f, 1f);
 
 		List<GameObject> pickup_obj = new List<GameObject>();
-		List<GameObject> kirehashi_obj = new List<GameObject>();
 		
 		List<GameObject> hpbar_obj = new List<GameObject>();
 		GameObject cursor_obj;
@@ -51,12 +47,6 @@ public class PrefabManager : MonoBehaviour{
 				new Vector3(-140f, 2f, 10f)
 			};
 
-			kirehashiPosStage3 = new Vector3[3] {
-				new Vector3(-100f, 2f, 10f),
-				new Vector3(-105f, 2f, 20f),
-				new Vector3(-110f, 2f, 10f)
-			};
-
 			enemyPosStage3 = new Vector3[3] {
 				new Vector3(Random.Range(-105.0f, -95.0f), 2f, Random.Range(-25.0f, -10.0f)),
 				new Vector3(-105.0f, 3f, 60.0f),
@@ -68,11 +58,6 @@ public class PrefabManager : MonoBehaviour{
 				pickup_obj[i].transform.localScale = pickupScale;
 				pickup_obj[i].name = "PickUp"+i;
 			}
-			for(int i=0;i<kirehashiPosStage3.Length;i++){
-				kirehashi_obj.Add(createPrefab(kirehashiPrefabPath, kirehashiPosStage3[i], this.gameObject.transform.rotation));
-				kirehashi_obj[i].transform.localScale = kirehashiScale;
-				kirehashi_obj[i].name = "Kirehashi"+i;
-			}
 			for(int i=0;i<enemyPosStage3.Length;i++){
 				enemy_obj.Add(createPrefab(ballPrefabPath, enemyPosStage3[i], this.gameObject.transform.rotation));
 				enemy_obj[i].transform.localScale = ballScale;
@@ -83,12 +68,13 @@ public class PrefabManager : MonoBehaviour{
 			}
 
 		}else if(SceneManager.GetActiveScene().name=="Stage3-a2"){
-			pickupPosStage3 = new Vector3[5] {
+			pickupPosStage3 = new Vector3[] {
 				new Vector3(-95f, 11.5f, 93f),
 				new Vector3(-105f, 11.5f, 93f),
 				new Vector3(-115f, 11.5f, 93f),
 				new Vector3(-63f, 11.5f, 0f),
-				new Vector3(-137f, 11.5f, 4f)
+				new Vector3(-119f, 17f, 3f),
+				new Vector3(-34f, 11.5f, -71f)
 			};
 			for(int i=0;i<pickupPosStage3.Length;i++){
 				pickup_obj.Add(createPrefab(pickupPrefabPath, pickupPosStage3[i], this.gameObject.transform.rotation));

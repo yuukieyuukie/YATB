@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace LockOn{
-public class Lockon : MonoBehaviour
-{
+public class Lockon : MonoBehaviour{
 
     public bool isLockOn = false; //ロックオンボタンを押したかどうか
 
-    public GameObject search;
-    private GameObject camera;
+    public GameObject searchEnemy;
+    private GameObject mainCamera;
     private GameObject player;
     private GameObject target;
     private SearchingBehavior searchingBehavior;
@@ -18,8 +17,8 @@ public class Lockon : MonoBehaviour
 
     void Start(){
         player = GameObject.FindGameObjectWithTag("Player");
-        camera = GameObject.FindGameObjectWithTag("MainCamera");
-        searchingBehavior = search.GetComponent<SearchingBehavior>();
+        mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
+        searchingBehavior = searchEnemy.GetComponent<SearchingBehavior>();
 
         cursor=GameObject.Find("Cursor");
 
@@ -40,7 +39,7 @@ public class Lockon : MonoBehaviour
             LockEnemy();
         }else{
             if(cursor!=null)cursor.transform.position = new Vector3(0, 50, 0);
-            Quaternion angle = camera.transform.rotation;
+            Quaternion angle = mainCamera.transform.rotation;
             this.transform.rotation = angle;
         }
    }

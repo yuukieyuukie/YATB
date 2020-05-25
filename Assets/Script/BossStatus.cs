@@ -4,23 +4,20 @@ using UnityEngine;
 using StateMachineSample;
 
 public class BossStatus : MonoBehaviour, ParentStatus{
-    private int maxLife = 10;
+    private int maxLife = 80;
     private int life;
-    private GameObject countDownTimer;
-
     private bool isLife;
     
     void Start(){
         life = maxLife;
         isLife = true;
-        countDownTimer = GameObject.Find("MessageUI/HUD/Timer");
     }
 
     void Update(){
         Debug.Log("BossHP : "+life);
         if(isLife && life<=0) {
             isLife = false;
-            gameObject.GetComponent<MoveBoss>().TakeDamage();
+            gameObject.GetComponent<MoveBoss>().changeStateExplode();
         }
     }
 
@@ -44,7 +41,7 @@ public class BossStatus : MonoBehaviour, ParentStatus{
     //タグ付オブジェクトに触れたときの処理
     void OnCollisionEnter(Collision col){
         if(col.gameObject.CompareTag("BossTrap")){
-            life -= 40;
+            life -= 35;
         }
     }
 }

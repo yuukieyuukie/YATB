@@ -11,9 +11,9 @@ namespace StateMachineSample{
     }
 
     public class MoveEnemy : StatefulObjectBase<MoveEnemy, EnemyState>{
-        public Transform turret;
-        public Transform muzzle;
-        public GameObject bulletPrefab;
+        // public Transform turret;
+        // public Transform muzzle;
+        // public GameObject bulletPrefab;
         public GameObject explosion;
 
         private Transform player;
@@ -23,7 +23,7 @@ namespace StateMachineSample{
         //private float turretRotationSmooth = 0.8f;
         //private float attackInterval = 2f;
         private float pursuitSpeed = 8f;
-        private float attackSpeed = 14f;
+        private float attackSpeed = 30f;
 
         private float pursuitSqrDistance = 700f;
         private float attackSqrDistance = 400f;
@@ -33,11 +33,19 @@ namespace StateMachineSample{
 
         private Rigidbody rb;
         private GameObject prefabManager;
+        private Vector3 localGravity = new Vector3(0f, -10f, 0f);
         
         [SerializeField]
         private GameObject flameEffect;
         private int dribbleFlameTime = 0;
         private bool dribbleFlameTimeFlg = false;
+
+        [SerializeField]
+        private AudioClip explodeAudio;
+        private AudioSource explodeAudioSource;
+        [SerializeField]
+        private AudioClip hitAudio;
+        private AudioSource hitAudioSource;
 
         private void Start(){
             Initialize();
@@ -56,9 +64,13 @@ namespace StateMachineSample{
                     dribbleFlameTime = 0;
                 }
             }
+
+            rb.AddForce (localGravity, ForceMode.Acceleration);
         }
 
         public void Initialize(){
+            explodeAudioSource = GetComponent<AudioSource>();
+            hitAudioSource = GetComponent<AudioSource>();
             // 始めにプレイヤーの位置を取得できるようにする
             player = GameObject.FindWithTag("Player").transform;
 
@@ -75,7 +87,7 @@ namespace StateMachineSample{
             ChangeState(EnemyState.Wander);
         }
 
-        public void TakeDamage(){
+        public void changeStateExplode(){
             ChangeState(EnemyState.Explode);
         }
 
@@ -98,7 +110,7 @@ namespace StateMachineSample{
                 // プレイヤーとの距離が小さければ、追跡ステートに遷移
                 float sqrDistanceToPlayer = Vector3.SqrMagnitude(owner.transform.position - owner.player.position);
                 if (sqrDistanceToPlayer <  owner.pursuitSqrDistance - owner.margin){
-                    Debug.Log("Change -> Pursuit");
+                    // Debug.Log("Change -> Pursuit");
                     owner.ChangeState(EnemyState.Pursuit);
                 }
 
@@ -119,11 +131,7 @@ namespace StateMachineSample{
             public override void Exit() {}
 
             public Vector3 GetRandomPositionOnLevel(){
-                
                 return owner.prefabManager.GetComponent<PrefabManager>().getEnemyPosStage3(int.Parse(owner.gameObject.name.Replace("enemy","")));
-                
-                //float levelSize = 15f;
-                //return new Vector3(Random.Range(-levelSize, levelSize), 0, Random.Range(-levelSize, levelSize));
             }
         }
 
@@ -140,13 +148,13 @@ namespace StateMachineSample{
                 float sqrDistanceToPlayer = Vector3.SqrMagnitude(owner.transform.position - owner.player.position);
                 if (sqrDistanceToPlayer < owner.attackSqrDistance - owner.margin){
                     owner.dribbleFlameTimeFlg = true; //条件：敵種Toroll
-                    Debug.Log("Change -> Attack");
+                    // Debug.Log("Change -> Attack");
                     owner.ChangeState(EnemyState.Attack);
                 }
 
                 // プレイヤーとの距離が大きければ、徘徊ステートに遷移
                 if (sqrDistanceToPlayer > owner.pursuitSqrDistance + owner.margin){
-                    Debug.Log("Change -> Wander");
+                    // Debug.Log("Change -> Wander");
                     owner.ChangeState(EnemyState.Wander);
                 }
 
@@ -169,13 +177,19 @@ namespace StateMachineSample{
 
             public StateAttack(MoveEnemy owner) : base(owner) { }
 
-            public override void Enter() {}
+            public override void Enter(){
+                // プレイヤーの方向を向く
+                Quaternion targetRotation = Quaternion.LookRotation(owner.player.position - owner.transform.position);
+                owner.transform.rotation = Quaternion.Slerp(owner.transform.rotation, targetRotation, Time.deltaTime * owner.rotationSmooth);
+                // 前方に進む
+                owner.rb.AddForce(targetRotation * Vector3.forward * owner.attackSpeed, ForceMode.Impulse);
+            }
 
             public override void Execute(){
                 //プレイヤーとの距離が大きければ、追跡ステートに遷移
                 float sqrDistanceToPlayer = Vector3.SqrMagnitude(owner.transform.position - owner.player.position);
                 if (sqrDistanceToPlayer > owner.attackSqrDistance + owner.margin){
-                    Debug.Log("Change -> Pursuit");
+                    // Debug.Log("Change -> Pursuit");
                     owner.ChangeState(EnemyState.Pursuit);
                 }
                 
@@ -185,7 +199,7 @@ namespace StateMachineSample{
 
                 // 前方に進む
                 //owner.transform.Translate(Vector3.forward * owner.speed * Time.deltaTime);
-                owner.rb.velocity = targetRotation * Vector3.forward * owner.attackSpeed;
+                //owner.rb.velocity = targetRotation * Vector3.forward * owner.attackSpeed;
 
                 // // 砲台をプレイヤーの方向に向ける
                 // Quaternion targetRotation = Quaternion.LookRotation(owner.player.position - owner.turret.position);
@@ -209,6 +223,7 @@ namespace StateMachineSample{
             public StateExplode(MoveEnemy owner) : base(owner) {}
 
             public override void Enter(){
+                owner.explodeAudioSource.PlayOneShot(owner.explodeAudio);
                 // ランダムな吹き飛ぶ力を加える
                 Vector3 force = (owner.transform.position - owner.player.position) * 200f + Random.insideUnitSphere * 300f;
                 owner.GetComponent<Rigidbody>().AddForce(force);
@@ -229,6 +244,7 @@ namespace StateMachineSample{
 
         void OnCollisionEnter(Collision col){
             if(col.gameObject.tag == "Shot"){ //当たった
+                hitAudioSource.PlayOneShot(hitAudio);
             }
         }
 

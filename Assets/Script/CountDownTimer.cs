@@ -8,8 +8,8 @@ public class CountDownTimer : MonoBehaviour{
 	//　トータル制限時間
 	public static float totalTime;
 	//　制限時間（分,秒）
-	public static int minute = 1;
-	public static float seconds = 10;
+	public static int minute;
+	public static float seconds;
 	//　前回Update時の秒数
 	private float oldSeconds;
 	private Text timerText;
@@ -19,9 +19,11 @@ public class CountDownTimer : MonoBehaviour{
 
 	void OnActiveSceneChanged( Scene prevScene, Scene nextScene ){
         Debug.Log ( prevScene.name + "->"  + nextScene.name );
-		if(nextScene.name=="Stage3-b"){
-				minute = 2;
-				seconds = 30;
+		//Menuから遷移した時の初期化
+		if(nextScene.name=="Menu"){
+			totalTime = 0f;
+			minute = 0;
+			seconds = 0f;
 		}
 
     }
@@ -33,25 +35,29 @@ public class CountDownTimer : MonoBehaviour{
 		stageUIManager = GameObject.Find("UIManager");
 		suim = stageUIManager.GetComponent<StageUIManager>();
 		if(suim.getCurrentScreen() == StageUIScreen.Briefing){
-			if(SceneManager.GetActiveScene().name=="Stage3-a"){
-				minute = 1;
-				seconds = 10;
-			}else if(SceneManager.GetActiveScene().name=="Stage3-b"){
-				
-			}
+			// if(SceneManager.GetActiveScene().name=="Stage3-a"){
+			// 	minute = 1;
+			// 	seconds = 30;	
+			// }else if(SceneManager.GetActiveScene().name=="Stage3-a2"){
+			// 	minute = 1;
+			// 	seconds = 0;
+			// }else if(SceneManager.GetActiveScene().name=="Stage3-b"){
+			// 	minute = 2;
+			// 	seconds = 30;
+			// }
 		}
 		
 	}
  
 	void Update(){
 
-		//　制限時間が0秒以下orボール動かしモードでないなら何もしない
-		if (totalTime <= 0f || suim.getCurrentScreen() != StageUIScreen.Game) {
+		//　ゲーム中でないなら何もしない
+		if (suim.getCurrentScreen() != StageUIScreen.Game) {
 			return;
 		}
 		//　一旦トータルの制限時間を計測；
 		totalTime = minute * 60 + seconds;
-		totalTime -= Time.deltaTime;
+		totalTime += Time.deltaTime;
  
 		//　再設定
 		minute = (int) totalTime / 60;
