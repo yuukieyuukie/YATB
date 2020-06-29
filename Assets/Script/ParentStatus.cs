@@ -4,9 +4,9 @@ using UnityEngine;
 
 interface ParentStatus{
 
-    int GetHp();
+    float GetHp();
 
-    int GetMaxHp();
+    float GetMaxHp();
 
     void TakeDamage(int damage);
 }

@@ -382,7 +382,7 @@ namespace StateMachineSample{
             public StateExplode(MoveBoss owner) : base(owner) {}
 
             public override void Enter(){
-                Debug.Log("撃破！");
+                //Debug.Log("撃破！");
                 StageUIManager suim = owner.sceneChanger.GetComponent<StageUIManager>();
                 suim.setCurrentScreen(StageUIScreen.GameClear);
                 owner.rbBoss.useGravity = true;

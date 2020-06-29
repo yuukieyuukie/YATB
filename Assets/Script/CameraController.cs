@@ -19,6 +19,8 @@ public class CameraController : MonoBehaviour{
     private GameObject sceneChanger;
     private StageUIManager suim;
 
+    private Vector3 pos;
+
     void Start(){
         prevPlayerPos = this.gameObject.transform.position;
         mainCamera.transform.position = prevPlayerPos + new Vector3(5f, 2f, 0f);
@@ -73,16 +75,25 @@ public class CameraController : MonoBehaviour{
         Vector3 backVector = (prevPlayerPos - currentPlayerPos).normalized;
         posVector = (backVector == Vector3.zero) ? posVector : backVector;
         Vector3 targetPos = currentPlayerPos + mainScale * posVector;
+
+        pos = mainCamera.transform.position;
+        pos.y = this.gameObject.transform.position.y+2f;
+        mainCamera.transform.position = pos;
+        
         targetPos.y = targetPos.y + height;
         mainCamera.transform.position = Vector3.Lerp (
             mainCamera.transform.position,
             targetPos,
             cameraSpeed * Time.deltaTime * 0.7f
         );
+        
         mainCamera.transform.LookAt (this.gameObject.transform.position);
         prevPlayerPos = this.gameObject.transform.position;
 
     }
+
+    //ボス戦時のメモ
+    //BossState.AttackTackleに遷移した時、ボスにカメラ焦点を当てるとドリブルで当てやすいかも！
 
     //常にボールの背後に付いて追っかけるカメラ
     private void moveOtherCamera(){

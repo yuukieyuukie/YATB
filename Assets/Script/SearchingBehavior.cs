@@ -46,21 +46,25 @@ public class SearchingBehavior : MonoBehaviour{
         
         enemys = GameObject.FindGameObjectsWithTag("Enemy");
 
-        foreach(GameObject enemy in enemys){
-            float dis = Vector3.Distance(transform.position, enemy.transform.position);
-            if(dis<minDis){
-                minDis=dis;
-                nearestEnemy=enemy;
+        if(enemys!=null){
+            foreach(GameObject enemy in enemys){
+                float dis = Vector3.Distance(transform.position, enemy.transform.position);
+                if(dis<minDis){
+                    minDis=dis;
+                    nearestEnemy=enemy;
+                }
             }
         }
         
         enemys = GameObject.FindGameObjectsWithTag("Boss");
 
-        foreach(GameObject enemy in enemys){
-            float dis = Vector3.Distance(transform.position, enemy.transform.position);
-            if(dis<minDis){
-                minDis=dis;
-                nearestEnemy=enemy;
+        if(enemys!=null){
+            foreach(GameObject enemy in enemys){
+                float dis = Vector3.Distance(transform.position, enemy.transform.position);
+                if(dis<minDis){
+                    minDis=dis;
+                    nearestEnemy=enemy;
+                }
             }
         }
 

@@ -81,41 +81,52 @@ public class Message : MonoBehaviour {
 				if(scoreManager.getLanguage()==0){	
 					SetMessage2("ここは何に使われた場所でしょうか", 0);
 					SetMessage2("コンテナだらけでサビ臭いです", 0);
-					SetMessage2("敵機も多そうです。慎重に進んでください", 0);
-					SetMessage2("さっそく敵機がうろついてますね", 1);
-					SetMessage2("さっさと倒して向こうに見える階段に向かいましょう", 1);
+					SetMessage2("敵機もいるので慎重に行きましょう", 0);
+					SetMessage2("敵機がいます！", 1);
+					SetMessage2("Enterキーでショットを撃てます", 1);
+					SetMessage2("倒して先に進みましょう", 1);
 				}else if(scoreManager.getLanguage()==1){
 					SetMessage2("I wonder what this place was used for.", 0);
 					SetMessage2("It's full of containers and it smells rusty.", 0);
-					SetMessage2("There seems to be a lot of enemies. Please proceed with caution.", 0);
+					SetMessage2("There seems to be a lot of enemies.", 0);
+					SetMessage2("Please proceed with caution.", 0);
 					SetMessage2("The enemy is already on the prowl, isn't it?", 1);
-					SetMessage2("Let's just get rid of them and head to the stairs you can see over there.", 1);
+					SetMessage2("Let's just get rid of them and ", 1);
+					SetMessage2("head to the stairs you can see over there.", 1);
 				}
 				break;
 			case "Stage3-a2":
 				dai_i = 2;
 				if(scoreManager.getLanguage()==0){
 					SetMessage2("周囲に敵機はいなさそうです", 2);
-					SetMessage2("ただ地形が少々複雑なようです。迷わないようお気をつけて", 2);
-					SetMessage2("イレボン、左の窓の奥の方に怪しげなスイッチがありますよ！", 3);
-					SetMessage2("アレを押せば１階のフェンスが動きそうですがこちらからは入れないようです", 3);
+					SetMessage2("ただ地形が少々複雑なようです", 2);
+					SetMessage2("迷わないようお気をつけて", 2);
+					SetMessage2("左の窓から怪しげなスイッチが見えます！", 3);
+					SetMessage2("アレを押せば１階のフェンスが動きそうです", 3);
+					SetMessage2("が、こちらからは入れないようです...",3);
 				}else if(scoreManager.getLanguage()==1){
 					SetMessage2("There seems to be no enemies around.", 2);
-					SetMessage2("However, the terrain seems to be a bit complicated. Be careful not to get lost.", 2);
-					SetMessage2("Elevon, there's a suspicious switch at the back of the window on the left!", 3);
-					SetMessage2("The fence on the first floor seems to move if you push on it, but you can't get in from here.", 3);
+					SetMessage2("But, the terrain seems to be complicated.", 2);
+					SetMessage2("Be careful not to get lost.", 2);
+					SetMessage2("There's a suspicious switch on your left!", 3);
+					SetMessage2("The fence on the 1st floor seems to move, if...", 3);
+					SetMessage2("...you push on it, but you can't get in from here.", 3);
 				}
 				break;
 			case "Stage3-b":
 				dai_i = 0;
 				if(scoreManager.getLanguage()==0){	
 					SetMessage2("敵機に改造されたビリヤードのようです", 0);
-					SetMessage2("ショットも効くと思いますが、このエリアには他にも有効な攻撃手段がありそうですよ！", 0);
-					SetMessage2("相手の動きを利用したり、突き飛ばしたりするといいと思います！", 0);
+					SetMessage2("もちろんショットも良いですが...", 0);
+					SetMessage2("ここには他に有効な攻撃手段がありそうです", 0);
+					SetMessage2("相手の動きを利用したり、突き飛ばしたり...", 0);
+					SetMessage2("...するといいと思います！", 0);
 				}else if(scoreManager.getLanguage()==1){	
 					SetMessage2("It's like a modified billiard.", 0);
-					SetMessage2("I'm sure the shots will do the trick, but I think there are other effective offensive measures in this area!", 0);
-					SetMessage2("It would be nice if he could take advantage of his opponent's moves and shove them!", 0);
+					SetMessage2("I'm sure the shots are nice, but I think...", 0);
+					SetMessage2("...there're other effective measures in here!", 0);
+					SetMessage2("You should take advantage of its moves...", 0);
+					SetMessage2("and shove it!", 0);
 				}
 				break;
 			case "BadEnd":

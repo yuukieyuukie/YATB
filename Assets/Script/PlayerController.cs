@@ -38,16 +38,14 @@ public class PlayerController : MonoBehaviour{
     private int shot1WayTime;
 
     private GameObject uiManager; //他オブジェクトのコンポーネントを取り込む
-    private GameObject countDownTimer;
-    private GameObject hud;
-    private GameObject dialoguePanel;
+    public GameObject countDownTimer;
     private GameObject messageUI;
     
     private GameObject changeSwitchState;
     private GameObject eventCamera;
 
-    private float moveHorizontal;
-    private float moveVertical;
+    // private float moveHorizontal;
+    // private float moveVertical;
 
     private Vector3 previousPos = new Vector3(-51f,1.1f,69f);
 
@@ -59,9 +57,6 @@ public class PlayerController : MonoBehaviour{
     void Start(){
         rb = GetComponent<Rigidbody>();
         
-        countDownTimer = GameObject.Find("MessageUI/HUD/TimeBox");
-        hud = GameObject.Find("MessageUI/HUD");
-        dialoguePanel = GameObject.Find("MessageUI/DialoguePanel");
         messageUI = GameObject.Find("MessageUI");
         muzzleFlash.SetActive(true);
         shotAudioSource = GetComponent<AudioSource>();
@@ -79,24 +74,41 @@ public class PlayerController : MonoBehaviour{
         }
         
     }
- 
+    
+    private float moveHorizontal2;
+    private float moveVertical2;
+    
     //rbはFixedで処理
     void FixedUpdate(){
 
         Vector3 cameraForward = Vector3.zero;
         cameraForward = Vector3.Scale(Camera.main.transform.forward, new Vector3(1, 0, 1)).normalized;// カメラの方向から、X-Z平面の単位ベクトルを取得
-        Vector3 moveForward = cameraForward * moveVertical + Camera.main.transform.right * moveHorizontal;// 方向キーの入力値とカメラの向きから、移動方向を決定
-        if(rb.velocity.magnitude < maxSpeed){
-            rb.AddForce(100f*moveForward.normalized * Time.deltaTime * (speed/Mathf.Sqrt(2.0f)) + new Vector3(0, rb.velocity.y, 0));// 移動方向にスピードを掛ける。ジャンプや落下がある場合は、別途Y軸方向の速度ベクトルを足す。
+        Vector3 moveForward2 = cameraForward * -moveVertical2 + Camera.main.transform.right * moveHorizontal2;// 方向キーの入力値とカメラの向きから、移動方向を決定
+
+        //減速キーor移動処理をしない時は減速、移動処理をする時は移動
+        if(!jumpFlg && moveHorizontal2==0f && moveVertical2>=0f){
+            if(rb.velocity.magnitude>=2f){
+                rb.AddForce(-300f * rb.velocity * Time.deltaTime);
+            }
+            else if(rb.velocity.magnitude<2f){
+                rb.constraints = RigidbodyConstraints.FreezePosition;
+                rb.constraints = RigidbodyConstraints.FreezeRotation;
+                rb.velocity = Vector3.zero;
+            }
+        }else if((-1f<=moveHorizontal2&&moveHorizontal2<=1f) || moveVertical2<0f || Input.GetButton("Jump")){            
+            if(rb.velocity.magnitude < maxSpeed){
+                rb.AddForce(100f * moveForward2.normalized * Time.deltaTime * (speed/Mathf.Sqrt(2.0f)) + new Vector3(0, rb.velocity.y, 0));// 移動方向にスピードを掛ける。ジャンプや落下がある場合は、別途Y軸方向の速度ベクトルを足す。
+            }
+            rb.constraints = RigidbodyConstraints.None;
+        }
+        if(dribbleFlg){
+            rb.velocity = Quaternion.Euler( 0, angle, 0 ) * cameraForward * dribbleBoost;
+            dribbleFlg = false;
         }
 
         if(jumpFlg && landFlg){
             rb.velocity = Vector3.up * jumpPower;
             landFlg = false;
-        }
-        if(dribbleFlg){
-            rb.velocity = Quaternion.Euler( 0, angle, 0 ) * cameraForward * dribbleBoost;
-            dribbleFlg = false;
         }
 
         //敵機に接触で一定時間無敵状態
@@ -133,24 +145,27 @@ public class PlayerController : MonoBehaviour{
     }
 
     void Update(){
-        moveHorizontal = Input.GetAxis("Horizontal");
-        moveVertical = Input.GetAxis("Vertical");
+
+        moveHorizontal2 = Input.GetAxis("Axis 1"); //左アナログスティック横, adキー
+        moveVertical2 = Input.GetAxis("Axis 2"); //左アナログスティック縦, wsキー
 
         //Pause中の入力を受け付けない
         if (Mathf.Approximately(Time.timeScale, 0f)) {
             return;
         }
 
-        //移動キーを押してない時は減速
-        if(!jumpFlg && moveHorizontal==0f && moveVertical==0f){
-            if(rb.velocity.magnitude>2f){
-                rb.AddForce(-150f*rb.velocity*Time.deltaTime);
-            }
-            else if(rb.velocity.magnitude<2f){
-                rb.velocity = Vector3.zero;
-            }
-        }
+        // //左右
+        // if (Input.GetAxis("Axis 1") > 0f)
+        //     axis1Value.text = "positive"; //右
+        // else if (Input.GetAxis("Axis 1") < 0f)
+        //     axis1Value.text = "negative"; //左
 
+        // //上下
+        // if (Input.GetAxis("Axis 2") > 0f)
+        //     axis2Value.text = "positive"; //下
+        // else if (Input.GetAxis("Axis 2") < 0f)
+        //     axis2Value.text = "negative"; //上
+        
         if (!shot1Way&&Input.GetButtonDown("Shot_1way")) {
             shot1Way = true;
         }
@@ -159,15 +174,21 @@ public class PlayerController : MonoBehaviour{
             jumpFlg = true;
             landFlg = true;
         }
+        // Debug.Log(moveHorizontal2+"  "+moveVertical2);
         if(dribble>0 && Input.GetButtonDown("Dribble")){
-            if(Input.GetButton("Right")){
+            if(Input.GetButton("Up")){
+                angle = 0;
+            }else if(Input.GetButton("Right")){
                 angle = 90;
             }else if(Input.GetButton("Left")){
                 angle = -90;
-            }else if(Input.GetButton("Up")){
+            }
+            if(moveHorizontal2>0f){
+                angle = 90;
+            }else if(moveHorizontal2<0f){
+                angle = -90;
+            }else if(moveVertical2<0f){
                 angle = 0;
-            }else if(Input.GetButton("Down")){
-                angle = 180;
             }
             dribbleFlg = true;
             dribble--;
@@ -213,14 +234,10 @@ public class PlayerController : MonoBehaviour{
             MessageUIManager muim = messageUI.GetComponent<MessageUIManager>();
             muim.checkPlayerColType(PlayerColType.EnemyCol);
             untouchable = true;
-            if(hud.activeSelf){
-                hud.GetComponent<ScreenShake>().Shake( 0.25f, 12.1f );
-            }
-            if(dialoguePanel.activeSelf){
-                dialoguePanel.GetComponent<ScreenShake>().Shake( 0.25f, 12.1f );
-            }
             sparkFlg = true;
-
+            foreach (Transform childTransform in messageUI.transform){
+                childTransform.GetComponent<ScreenShake>().Shake( 0.25f, 12.1f );
+            }
         }else if(col.gameObject.CompareTag("Floor")){
             jumpFlg = false;
         }else if(col.gameObject.CompareTag("Switch") && !changeSwitchState.GetComponent<ChangeSwitchState>().getSwitchState()){
@@ -228,11 +245,8 @@ public class PlayerController : MonoBehaviour{
         }else if(col.gameObject.CompareTag("BossTrap")){
             MessageUIManager muim = messageUI.GetComponent<MessageUIManager>();
             muim.checkPlayerColType(PlayerColType.EnemyCol);
-            if(hud.activeSelf){
-                hud.GetComponent<ScreenShake>().Shake( 0.25f, 12.1f );
-            }
-            if(dialoguePanel.activeSelf){
-                dialoguePanel.GetComponent<ScreenShake>().Shake( 0.25f, 12.1f );
+            foreach (Transform childTransform in messageUI.transform){
+                childTransform.GetComponent<ScreenShake>().Shake( 0.25f, 12.1f );
             }
         }
     }

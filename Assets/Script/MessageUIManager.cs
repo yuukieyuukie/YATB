@@ -6,35 +6,35 @@ using UnityEngine.SceneManagement;
 
 public class MessageUIManager : MonoBehaviour {
 
-    private GameObject imageObtain, imageApproach, imageCrushed, imageDamage;
-    private float timeObtain = 0f, timeApproach = 0f, timeCrushed = 0f, timeDamage = 0f;
-    private float alfaObtain = 0f, alfaApproach = 0f, alfaCrushed = 0f, alfaDamage = 0f;
-    private Color colorObtain, colorApproach, colorCrushed, colorDamage;
+    private GameObject imageObtain, imageApproach, imageCrushed, imageDamage, imageSecret;
+    private float timeObtain = 0f, timeApproach = 0f, timeCrushed = 0f, timeDamage = 0f, timeSecret = 0f;
+    private float alfaObtain = 0f, alfaApproach = 0f, alfaCrushed = 0f, alfaDamage = 0f, alfaSecret = 0f;
+    private Color colorObtain, colorApproach, colorCrushed, colorDamage, colorSecret;
 
     private GameObject player;
     private int dribbleCount, oldDribbleCount;
     private GameObject dribbleGauge;
     private List<GameObject> dribbleGaugeLeft = new List<GameObject>();
-    private List<GameObject> dribbleGaugeRight = new List<GameObject>();
 
-    private GameObject lifeText;
-    private Text lifeTextChild;
-    private static float life = 60f;
-    private float maxLife = 60f;
-	//　HP表示用スライダー
-    private RectTransform hpUI;
-    private Slider hpSlider;
+    private static float life = 300f;
+    private float maxLife = 300f;
+    private float damage = 100f;
+    private float regain = -30f;
+
+    private RectTransform healthGauge, bossHealthGauge;
+    private Image gauge, bossGauge;
+    [SerializeField] private GameObject bossHealthGaugeObj, bossHealthImage;
     private GameObject stageUIManager;
     private StageUIManager suim;
 
     private static bool secret1Flg, secret2Flg, secret3Flg;
-    private GameObject secret1, secret2, secret3;
+    [SerializeField] private GameObject secret1, secret2, secret3;
     private GameObject gem1, gem2, gem3;
     
     void OnActiveSceneChanged( Scene prevScene, Scene nextScene ){
         //Menuから遷移した時の初期化
 		if(nextScene.name=="Menu"){
-            life = 60f;
+            life = maxLife;
 			initSecretFlg();
 		}
 
@@ -58,37 +58,46 @@ public class MessageUIManager : MonoBehaviour {
         colorDamage = imageDamage.GetComponent<Image>().color;
         colorDamage.a = alfaDamage;
         imageDamage.GetComponent<Image>().color = colorDamage;
+        imageSecret = GameObject.Find("ReactionPanel/ImageSecret");
+        colorSecret = imageSecret.GetComponent<Image>().color;
+        colorSecret.a = alfaSecret;
+        imageSecret.GetComponent<Image>().color = colorSecret;
 
         player = GameObject.Find("Player");
-        dribbleGauge = GameObject.Find("HUD/DribbleGauge");
+        dribbleGauge = GameObject.Find("DribbleGauge");
         for(int i=0;i<5;i++){
             dribbleGaugeLeft.Add(dribbleGauge.transform.Find("Left"+(i+1)).gameObject);
             dribbleGaugeLeft[i].SetActive(false);
-            dribbleGaugeRight.Add(dribbleGauge.transform.Find("Right"+(i+1)).gameObject);
-            dribbleGaugeRight[i].SetActive(false);
         }
         
-        lifeText = GameObject.Find("HUD/LifeText");
-        lifeTextChild = lifeText.GetComponentInChildren<Text>();
-        hpUI = GameObject.Find("HUD/HPUIME").GetComponent<RectTransform>(); //GameObjectから親要素を取得
-        hpSlider = hpUI.transform.Find("HPBar").GetComponent<Slider>(); //transformで子要素を取得
+        healthGauge = GameObject.Find("HealthGauge").GetComponent<RectTransform>(); //GameObjectから親要素を取得
+        gauge = healthGauge.transform.Find("Gauge").GetComponent<Image>(); //transformで子要素を取得
+
+
+
+        if(SceneManager.GetActiveScene().name=="Stage3-b"){
+            bossHealthImage.SetActive(true);
+            bossHealthGaugeObj.SetActive(true);
+            // 3bのみ使用
+            // bossHealthGauge = GameObject.Find("BossHealthGauge").GetComponent<RectTransform>();
+            // bossGauge = bossHealthGauge.transform.Find("Gauge").GetComponent<Image>();
+        }else{
+            bossHealthImage.SetActive(false);
+            bossHealthGaugeObj.SetActive(false);
+        }
 		
-		//　スライダーの値0～1の間になるように比率を計算
-		UpdateHPValue();
         stageUIManager = GameObject.Find("UIManager");
         suim = stageUIManager.GetComponent<StageUIManager>();
-        //Briefingから遷移した時の初期化
-        if(suim.getCurrentScreen()==StageUIScreen.Briefing){
-            life = 60f;
-        }
 
-        secret1 = GameObject.Find("HUD/Secret/Secret1");
-        secret2 = GameObject.Find("HUD/Secret/Secret2");
-        secret3 = GameObject.Find("HUD/Secret/Secret3");
         gem1 = GameObject.Find("gem1");
         gem2 = GameObject.Find("gem2");
         gem3 = GameObject.Find("gem3");
-        
+
+        //Briefingから遷移した時の初期化
+        if(suim.getCurrentScreen()==StageUIScreen.Briefing){
+            setSecretActive();
+            life = maxLife;
+        }
 
     }
 
@@ -140,51 +149,42 @@ public class MessageUIManager : MonoBehaviour {
         }else if(timeDamage>=0.5f){
             timeDamage = 0;
         }
+        if(0f<timeSecret && timeSecret<2f){
+            timeSecret += Time.deltaTime;
+        }else if(timeSecret>=2f){
+            if(alfaSecret<=0f){
+                timeSecret = 0f;
+            }
+            colorSecret.a = alfaSecret;
+            imageSecret.GetComponent<Image>().color = colorSecret;
+            alfaSecret -= Time.deltaTime;
+        }        
         
         oldDribbleCount = dribbleCount;
         dribbleCount = player.GetComponent<PlayerController>().getDribbleCount();
         if(oldDribbleCount < dribbleCount){ // ゲージが増えた
             dribbleGaugeLeft[dribbleCount-1].SetActive(true);
-            dribbleGaugeRight[dribbleCount-1].SetActive(true);
         }else if(oldDribbleCount > dribbleCount){ // ゲージが減った
             dribbleGaugeLeft[oldDribbleCount-1].SetActive(false);
-            dribbleGaugeRight[oldDribbleCount-1].SetActive(false);
         }
 
-		UpdateHPValue();
-
-        if(SceneManager.GetActiveScene().name=="Stage3-a" || SceneManager.GetActiveScene().name=="Stage3-a2"){
-            if(!secret1.activeSelf && getSecret1Flg()){
-                Debug.Log("gem1get:true");
-                secret1.SetActive(true);
-                gem1.SetActive(false);
-            }
-            if(!secret2.activeSelf && getSecret2Flg()){
-                Debug.Log("gem2get:true");
-                secret2.SetActive(true);
-                gem2.SetActive(false);
-            }
-            if(!secret3.activeSelf && getSecret3Flg()){
-                Debug.Log("gem3get:true");
-                secret3.SetActive(true);
-                gem3.SetActive(false);
-            }
-        }
     }
 
  
-	private void UpdateHPValue() {
-        lifeTextChild.text = life.ToString("00");
-		hpSlider.value = life / maxLife;
+	private void UpdateHPValue(float zogen) {
+        Vector3 work = gauge.transform.localPosition;
+        work.x -= zogen;
+		gauge.transform.localPosition = work;
 	}
 
     public bool isLifeZero(){
         return life <= 0 ? true : false;
     }
 
-    public void initSecretFlg(){
+    private void initSecretFlg(){
         secret1Flg = secret2Flg = secret3Flg = false;
     }
+
     public void setSecretFlg(bool a, string gemStr){
         if(gemStr=="gem1"){
             secret1Flg = a;
@@ -194,14 +194,29 @@ public class MessageUIManager : MonoBehaviour {
             secret3Flg = a;
         }
     }
-    public bool getSecret1Flg(){
+    private bool getSecret1Flg(){
         return secret1Flg;
     }
-    public bool getSecret2Flg(){
+    private bool getSecret2Flg(){
         return secret2Flg;
     }
-    public bool getSecret3Flg(){
+    private bool getSecret3Flg(){
         return secret3Flg;
+    }
+
+    public void setSecretActive(){
+        if(!secret1.activeSelf && getSecret1Flg()){
+            secret1.SetActive(true);
+            gem1.SetActive(false);
+        }
+        if(!secret2.activeSelf && getSecret2Flg()){
+            secret2.SetActive(true);
+            gem2.SetActive(false);
+        }
+        if(!secret3.activeSelf && getSecret3Flg()){
+            secret3.SetActive(true);
+            gem3.SetActive(false);
+        }
     }
 
     //プレイヤーが衝突したオブジェクト種類に対し処理を行う
@@ -212,7 +227,10 @@ public class MessageUIManager : MonoBehaviour {
             colorObtain.a = alfaObtain;
             colorObtain = new Color(1.0f, 1.0f, 1.0f, colorObtain.a);
             imageObtain.GetComponent<Image>().color = colorObtain;
-            if(life<maxLife) life += 10;
+            if(life<maxLife){
+                life -= regain;
+                UpdateHPValue(regain);
+            }
         }else if(colType==PlayerColType.EnemyNear){
             timeApproach += Time.deltaTime;
             alfaApproach = 1f;
@@ -224,13 +242,13 @@ public class MessageUIManager : MonoBehaviour {
             colorCrushed.a = alfaCrushed;
             imageCrushed.GetComponent<Image>().color = colorCrushed;
             timeDamage += Time.deltaTime;
-            life -= 20;
+            life -= damage;
+            UpdateHPValue(damage);
         }else if(colType==PlayerColType.Secret){
-            timeObtain += Time.deltaTime;
-            alfaObtain = 1f;
-            colorObtain.a = alfaObtain;
-            colorObtain = new Color(0.0f, 1.0f, 0.0f, colorObtain.a);
-            imageObtain.GetComponent<Image>().color = colorObtain;
+            timeSecret += Time.deltaTime;
+            alfaSecret = 1f;
+            colorSecret.a = alfaSecret;
+            imageSecret.GetComponent<Image>().color = colorSecret;
         }
     }
 

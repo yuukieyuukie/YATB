@@ -73,7 +73,7 @@ public class ShotObject : MonoBehaviour
 
     void OnCollisionEnter(Collision col){
 		if(col.gameObject.tag == "Enemy") {
-            col.gameObject.GetComponent<EnemyStatus>().TakeDamage(damage);
+            //col.gameObject.GetComponent<EnemyStatus>().TakeDamage(damage);
 			Destroy(this.gameObject);
             CallImpactEffect(gameObject.transform);
 		}else if(col.gameObject.tag == "Metal") {
@@ -85,7 +85,6 @@ public class ShotObject : MonoBehaviour
             cubeDoor.SetActive(false);
             colliderDoor.SetActive(false);
         }else if(col.gameObject.tag == "Boss"){
-            col.gameObject.GetComponent<BossStatus>().TakeDamage(damage);
 			Destroy(this.gameObject);
             CallImpactEffect(gameObject.transform);
         }

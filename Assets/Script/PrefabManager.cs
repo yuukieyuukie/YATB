@@ -15,7 +15,7 @@ public class PrefabManager : MonoBehaviour{
 
 		//配置するオブジェクトのプレハブのパスを設定
 		string ballPrefabPath = "Prefabs/Enemy Ball";
-        string hpPrefabPath = "Prefabs/HPUI2";
+        string hpPrefabPath = "Prefabs/HPUIE";
 		string pickupPrefabPath = "Prefabs/PickUp";
 		string cursorPrefabPath = "Prefabs/Cursor";
 		
@@ -36,15 +36,12 @@ public class PrefabManager : MonoBehaviour{
 		}else if(SceneManager.GetActiveScene().name=="Stage2"){
 			//stage2のアイテム場所を設定
 		}else if(SceneManager.GetActiveScene().name=="Stage3-a"){
-			pickupPosStage3 = new Vector3[8] {
-				new Vector3(-130f, 2f, -70f),
+			pickupPosStage3 = new Vector3[] {
 				new Vector3(-72f, 7.5f, -16f),
 				new Vector3(-45f, 2f, 77f),
 				new Vector3(-39f, 2f, 77f),
 				new Vector3(-30f, 2f, 25f),
-				new Vector3(-30f, 2f, 20f),
-				new Vector3(-150f, 2f, 10f),
-				new Vector3(-140f, 2f, 10f)
+				new Vector3(-30f, 2f, 20f)
 			};
 
 			enemyPosStage3 = new Vector3[3] {

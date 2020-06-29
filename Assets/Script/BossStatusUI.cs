@@ -4,41 +4,47 @@ using UnityEngine.UI;
 
 public class BossStatusUI : MonoBehaviour{
     
-	private BossStatus BossStatus;
+	private BossStatus bossStatus;
 
 	//　HP表示用スライダー
     private RectTransform hpUI;
-    private Slider hpSlider;
+    private Image gauge;
+	//private float shotDamage = 5f, trapDamage = 35f;
  
 	void Start() {
-        hpUI=GameObject.Find("MessageUI/HUD/HPUI2").GetComponent<RectTransform>(); //GameObjectから親要素を取得
-        hpSlider = hpUI.transform.Find("HPBar").GetComponent <Slider>(); //transformで子要素を取得
-		
-        BossStatus = GetComponent<BossStatus>();
+        hpUI = GameObject.Find("MessageUI/BossHealthGauge").GetComponent<RectTransform>(); //GameObjectから親要素を取得
+        gauge = hpUI.transform.Find("Gauge").GetComponent <Image>(); //transformで子要素を取得
+		Debug.Log(hpUI);
+		Debug.Log(gauge);
+
+        bossStatus = GetComponent<BossStatus>();
 		//　スライダーの値0～1の間になるように比率を計算
-		hpSlider.value = (float) BossStatus.GetMaxHp () / (float) BossStatus.GetMaxHp ();		
+		//hpSlider.value = (float) BossStatus.GetMaxHp () / (float) BossStatus.GetMaxHp ();		
 
 	}
 	
 	void Update () {
 		//hpUI.transform.rotation = Camera.main.transform.rotation;
 		
-		UpdateHPValue();
+		// UpdateHPValue();
         //checkDisable();
 	}
 
-    public void checkDisable(){
-        if (hpUI.gameObject!=null&&BossStatus.GetHp() <= 0){
-            hpUI.gameObject.SetActive (false); //destroyするとexception出る
-        }
-		else{
-			//　HPバーが下にずれるため上方に修正
-			Vector3 pos = this.transform.position;
-			hpUI.transform.position = new Vector3(pos.x, pos.y+5f, pos.z);
+	public void UpdateHPValue(float zogen) {
+		Vector3 work = gauge.transform.localPosition;
+        work.x -= zogen*10f;
+		gauge.transform.localPosition = work;
+		//hpSlider.value = (float) BossStatus.GetHp () / (float) BossStatus.GetMaxHp ();
+	}
+
+	void OnCollisionEnter(Collision col){
+		if(col.gameObject.CompareTag("Shot")){
+			hpUI.GetComponent<ScreenShake>().Shake( 0.25f, 5.0f );
+			UpdateHPValue(bossStatus.getShotDamage());
 		}
-    }
- 
-	public void UpdateHPValue() {
-		hpSlider.value = (float) BossStatus.GetHp () / (float) BossStatus.GetMaxHp ();
+		else if(col.gameObject.CompareTag("BossTrap")){
+			hpUI.GetComponent<ScreenShake>().Shake( 0.25f, 20.0f );
+			UpdateHPValue(bossStatus.getTrapDamage());
+		}
 	}
 }
